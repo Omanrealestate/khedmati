@@ -1,0 +1,901 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>خدمتي — بوابة مقدم الخدمة</title>
+<style>
+:root{
+  --bg:#f0f4ff;--card:#fff;--text:#111827;--muted:#6b7280;
+  --border:#e2e6ee;--shadow:0 4px 24px rgba(17,24,39,.07);
+  --primary:#2563eb;--primary-dark:#1d4ed8;--primary-light:#eff6ff;
+  --success:#059669;--success-light:#ecfdf5;
+  --warning:#d97706;--warning-light:#fffbeb;
+  --danger:#dc2626;--danger-light:#fef2f2;
+  --orange:#ea580c;--purple:#7c3aed;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Tahoma,'Segoe UI',Arial,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
+
+/* NAV */
+.nav{background:#fff;border-bottom:1px solid var(--border);box-shadow:0 2px 12px rgba(0,0,0,.05);position:sticky;top:0;z-index:50;}
+.nav-inner{max-width:1000px;margin:auto;padding:0 20px;height:64px;display:flex;align-items:center;justify-content:space-between;}
+.brand{display:flex;align-items:center;gap:10px;}
+.brand-icon{width:38px;height:38px;background:linear-gradient(135deg,#2563eb,#7c3aed);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;color:#fff;}
+.brand-text{font-size:20px;font-weight:900;background:linear-gradient(135deg,#2563eb,#7c3aed);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.user-info{display:flex;align-items:center;gap:10px;}
+.user-name{font-size:14px;font-weight:700;}
+.logout-btn{font-size:13px;color:var(--danger);background:var(--danger-light);border:none;border-radius:8px;padding:6px 14px;cursor:pointer;font-weight:700;}
+
+/* AUTH SCREEN */
+.auth-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;}
+.auth-card{background:#fff;border:1px solid var(--border);border-radius:24px;box-shadow:0 8px 40px rgba(0,0,0,.1);width:100%;max-width:440px;overflow:hidden;}
+.auth-head{background:linear-gradient(135deg,#2563eb,#7c3aed);padding:28px;text-align:center;color:#fff;}
+.auth-head h1{font-size:22px;font-weight:900;margin-bottom:6px;}
+.auth-head p{opacity:.9;font-size:14px;}
+.auth-tabs{display:flex;border-bottom:1px solid var(--border);}
+.auth-tab{flex:1;padding:14px;text-align:center;cursor:pointer;font-size:14px;font-weight:700;color:var(--muted);border-bottom:3px solid transparent;transition:.15s;}
+.auth-tab.active{color:var(--primary);border-bottom-color:var(--primary);}
+.auth-body{padding:24px;}
+.form-group{margin-bottom:16px;}
+label{display:block;font-size:13px;font-weight:700;margin-bottom:6px;}
+input,select{width:100%;border:1.5px solid var(--border);border-radius:12px;padding:12px 14px;font-size:14px;font-family:inherit;outline:none;transition:.18s;}
+input:focus,select:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(37,99,235,.1);}
+.btn-primary{background:linear-gradient(135deg,#2563eb,#7c3aed);color:#fff;border:none;border-radius:12px;padding:14px;font-size:15px;font-weight:800;cursor:pointer;width:100%;transition:.18s;}
+.btn-primary:hover{opacity:.92;}
+.btn-primary:disabled{opacity:.6;cursor:not-allowed;}
+.err-msg{background:var(--danger-light);color:var(--danger);border:1px solid #fecaca;border-radius:10px;padding:10px 14px;font-size:13px;font-weight:700;margin-bottom:14px;display:none;}
+.ok-msg{background:var(--success-light);color:var(--success);border:1px solid #a7f3d0;border-radius:10px;padding:10px 14px;font-size:13px;font-weight:700;margin-bottom:14px;display:none;}
+
+/* MAIN APP */
+.app-wrap{max-width:1000px;margin:0 auto;padding:20px 20px 60px;}
+.tabs{display:flex;gap:4px;background:#f3f4f6;border-radius:14px;padding:4px;margin-bottom:20px;}
+.tab{flex:1;padding:10px;border-radius:10px;cursor:pointer;font-size:14px;font-weight:700;border:none;background:transparent;color:var(--muted);transition:.2s;text-align:center;}
+.tab.active{background:#fff;color:var(--primary);box-shadow:0 2px 8px rgba(0,0,0,.1);}
+.page{display:none;}
+.page.active{display:block;}
+
+/* STATS */
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px;}
+.stat{background:#fff;border:1px solid var(--border);border-radius:16px;padding:16px;box-shadow:var(--shadow);}
+.stat .lbl{font-size:12px;color:var(--muted);font-weight:700;}
+.stat .num{font-size:22px;font-weight:800;margin-top:6px;}
+.stat.blue .num{color:var(--primary);}
+.stat.green .num{color:var(--success);}
+.stat.orange .num{color:var(--orange);}
+.stat.purple .num{color:var(--purple);}
+
+/* ONLINE TOGGLE */
+.online-bar{background:#fff;border:1px solid var(--border);border-radius:16px;padding:16px 20px;display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;box-shadow:var(--shadow);}
+.toggle-wrap{display:flex;align-items:center;gap:10px;}
+.toggle{width:52px;height:28px;background:#d1d5db;border-radius:999px;cursor:pointer;position:relative;transition:.2s;}
+.toggle.on{background:var(--success);}
+.toggle::after{content:'';width:22px;height:22px;background:#fff;border-radius:50%;position:absolute;top:3px;right:3px;transition:.2s;box-shadow:0 1px 4px rgba(0,0,0,.2);}
+.toggle.on::after{right:27px;}
+
+/* FCM BANNER */
+.fcm-banner{background:linear-gradient(135deg,#1e40af,#6d28d9);border-radius:16px;padding:16px 20px;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;}
+.fcm-banner .txt{color:#fff;}
+.fcm-banner .txt b{display:block;font-size:15px;margin-bottom:3px;}
+.fcm-banner .txt small{opacity:.9;font-size:13px;}
+.fcm-btn{background:#fff;color:#1e40af;border:none;border-radius:10px;padding:10px 20px;font-size:14px;font-weight:800;cursor:pointer;white-space:nowrap;}
+
+/* REQUEST CARDS */
+.req-card{background:#fff;border:2px solid var(--border);border-radius:20px;padding:18px;box-shadow:var(--shadow);margin-bottom:14px;transition:.2s;}
+.req-card.new{border-color:#fbbf24;background:linear-gradient(180deg,#fffdf5,#fff);animation:slideIn .3s ease;}
+.req-card.accepted{border-color:var(--success);background:var(--success-light);}
+.req-card.progress{border-color:var(--primary);background:var(--primary-light);}
+@keyframes slideIn{from{transform:translateY(-8px);opacity:0}to{transform:translateY(0);opacity:1}}
+.req-head{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:12px;}
+.req-svc{display:flex;align-items:center;gap:10px;}
+.req-icon{width:46px;height:46px;border-radius:12px;background:#f3f4f6;display:flex;align-items:center;justify-content:center;font-size:24px;font-family:'Segoe UI Emoji','Apple Color Emoji',sans-serif;}
+.req-title{font-size:16px;font-weight:800;}
+.req-sub{font-size:13px;color:var(--muted);margin-top:2px;}
+.badge{font-size:12px;font-weight:700;padding:5px 12px;border-radius:999px;white-space:nowrap;}
+.badge-new{background:var(--warning-light);color:var(--warning);}
+.badge-accepted{background:var(--success-light);color:var(--success);}
+.badge-progress{background:var(--primary-light);color:var(--primary);}
+.req-details{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;}
+.dbox{background:#f8fafc;border:1px solid var(--border);border-radius:10px;padding:10px;}
+.dbox .dl{font-size:11px;color:var(--muted);font-weight:700;margin-bottom:3px;}
+.dbox .dv{font-size:13px;font-weight:700;}
+.req-actions{display:flex;gap:8px;flex-wrap:wrap;}
+.btn{border:none;border-radius:10px;padding:9px 16px;font-size:13px;font-weight:700;cursor:pointer;transition:.15s;display:inline-flex;align-items:center;gap:5px;}
+.btn-accept{background:var(--success);color:#fff;}
+.btn-accept:hover{background:#047857;}
+.btn-accept:disabled{opacity:.5;cursor:not-allowed;}
+.btn-skip{background:#f3f4f6;color:var(--muted);}
+.btn-call{background:#e0f2fe;color:#0369a1;}
+.btn-nav{background:#f0fdf4;color:var(--success);}
+.btn-done{background:var(--primary);color:#fff;}
+.timer{font-size:13px;font-weight:800;color:var(--danger);background:var(--danger-light);padding:4px 10px;border-radius:8px;}
+.timer-bar{height:4px;background:#f3f4f6;border-radius:2px;margin:10px 0 0;overflow:hidden;}
+.timer-fill{height:100%;background:linear-gradient(90deg,var(--success),var(--warning),var(--danger));transition:width 1s linear;}
+.empty-state{text-align:center;padding:50px 20px;color:var(--muted);}
+.empty-state .ei{font-size:48px;margin-bottom:12px;}
+
+/* PROFILE / REGISTER FORM */
+.form-card{background:#fff;border:1px solid var(--border);border-radius:18px;padding:20px;box-shadow:var(--shadow);margin-bottom:16px;}
+.form-card h3{font-size:16px;font-weight:800;margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid var(--border);}
+.fg2{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.check-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:8px;}
+.chk{display:flex;align-items:center;gap:7px;padding:9px 12px;border:2px solid var(--border);border-radius:10px;cursor:pointer;transition:.15s;font-size:13px;font-weight:700;}
+.chk:hover{border-color:#bfdbfe;background:var(--primary-light);}
+.chk.on{border-color:var(--primary);background:var(--primary-light);}
+.chk-icon{font-family:'Segoe UI Emoji','Apple Color Emoji',sans-serif;font-size:18px;}
+
+@media(max-width:640px){.stats{grid-template-columns:repeat(2,1fr)}.fg2{grid-template-columns:1fr}}
+</style>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin=""/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+</head>
+<body>
+
+<!-- AUTH SCREEN -->
+<div id="authScreen" class="auth-wrap">
+  <div class="auth-card">
+    <div class="auth-head">
+      <div style="font-size:40px;margin-bottom:8px;">👷</div>
+      <h1>بوابة مقدم الخدمة</h1>
+      <p>سجّل دخولك أو أنشئ حساباً جديداً</p>
+    </div>
+    <div class="auth-tabs">
+      <div class="auth-tab active" id="tabLogin" onclick="switchAuthTab('login')">تسجيل الدخول</div>
+      <div class="auth-tab" id="tabRegister" onclick="switchAuthTab('register')">حساب جديد</div>
+    </div>
+    <div class="auth-body">
+      <div id="authErr" class="err-msg"></div>
+      <div id="authOk"  class="ok-msg"></div>
+
+      <!-- LOGIN FORM -->
+      <div id="loginForm">
+        <div class="form-group"><label>رقم الجوال</label><input type="tel" id="loginPhone" placeholder="9689xxxxxxx"/></div>
+        <div class="form-group"><label>كلمة المرور</label><input type="password" id="loginPass" placeholder="••••••••"/></div>
+        <button class="btn-primary" id="loginBtn" onclick="doLogin()">🔑 تسجيل الدخول</button>
+        <p style="text-align:center;margin-top:14px;font-size:13px;color:var(--muted);">ليس لديك حساب؟ <a href="#" onclick="switchAuthTab('register')" style="color:var(--primary);font-weight:700;">سجّل الآن</a></p>
+      </div>
+
+      <!-- REGISTER FORM -->
+      <div id="registerForm" style="display:none;">
+        <div class="fg2">
+          <div class="form-group"><label>الاسم الكامل *</label><input type="text" id="rName" placeholder="اسمك الكامل"/></div>
+          <div class="form-group"><label>رقم الجوال *</label><input type="tel" id="rPhone" placeholder="9689xxxxxxx"/></div>
+          <div class="form-group"><label>كلمة المرور *</label><input type="password" id="rPass" placeholder="6 أحرف على الأقل"/></div>
+          <div class="form-group"><label>تأكيد كلمة المرور *</label><input type="password" id="rPass2" placeholder="أعد كتابة كلمة المرور"/></div>
+        </div>
+
+        <!-- تحديد الموقع على الخريطة -->
+        <div class="form-group" style="margin-top:12px;">
+          <label>📍 منطقة عملك * — حدد موقعك على الخريطة</label>
+          <div id="regMapBox" style="margin-top:8px;border:2px solid var(--border);border-radius:16px;overflow:hidden;">
+            <!-- شريط الأدوات -->
+            <div style="padding:10px 14px;background:#f8faff;border-bottom:1px solid var(--border);display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+              <button type="button" onclick="useGPSLocation()" id="gpsBtn" style="background:linear-gradient(135deg,#2563eb,#7c3aed);color:#fff;border:none;border-radius:10px;padding:9px 16px;font-size:13px;font-weight:800;cursor:pointer;display:flex;align-items:center;gap:6px;">
+                📍 موقعي الحالي
+              </button>
+              <span style="font-size:12px;color:var(--muted);">أو اضغط على الخريطة لتحديد موقعك</span>
+              <div id="regLocLabel" style="margin-right:auto;font-size:12px;font-weight:700;color:var(--success);display:none;">✅ تم تحديد الموقع</div>
+            </div>
+            <!-- الخريطة -->
+            <div id="regMap" style="width:100%;height:280px;"></div>
+          </div>
+          <input type="hidden" id="rLat"/>
+          <input type="hidden" id="rLng"/>
+          <div id="regLocErr" style="display:none;color:var(--danger);font-size:12px;margin-top:6px;font-weight:700;">⚠️ حدد موقعك على الخريطة أولاً</div>
+        </div>
+
+        <!-- نطاق الخدمة -->
+        <div class="form-group" style="margin-top:4px;">
+          <label>🔵 نطاق الخدمة — سيصلك الطلبات ضمن هذا المدى</label>
+          <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:8px;">
+            <div class="radius-opt" onclick="selectRadius(5,this)" style="border:2px solid var(--border);border-radius:12px;padding:12px;text-align:center;cursor:pointer;transition:.15s;">
+              <div style="font-size:20px;font-weight:800;color:var(--primary);">5</div>
+              <div style="font-size:12px;color:var(--muted);">كيلومتر</div>
+            </div>
+            <div class="radius-opt active-radius" onclick="selectRadius(10,this)" style="border:2px solid var(--primary);border-radius:12px;padding:12px;text-align:center;cursor:pointer;background:var(--primary-light);transition:.15s;">
+              <div style="font-size:20px;font-weight:800;color:var(--primary);">10</div>
+              <div style="font-size:12px;color:var(--primary);font-weight:700;">كيلومتر ⭐</div>
+            </div>
+            <div class="radius-opt" onclick="selectRadius(15,this)" style="border:2px solid var(--border);border-radius:12px;padding:12px;text-align:center;cursor:pointer;transition:.15s;">
+              <div style="font-size:20px;font-weight:800;color:var(--primary);">15</div>
+              <div style="font-size:12px;color:var(--muted);">كيلومتر</div>
+            </div>
+            <div class="radius-opt" onclick="selectRadius(20,this)" style="border:2px solid var(--border);border-radius:12px;padding:12px;text-align:center;cursor:pointer;transition:.15s;">
+              <div style="font-size:20px;font-weight:800;color:var(--primary);">20</div>
+              <div style="font-size:12px;color:var(--muted);">كيلومتر</div>
+            </div>
+          </div>
+          <input type="hidden" id="rRadius" value="10"/>
+        </div>
+
+        <div class="form-group" style="margin-top:4px;">
+          <label>الخدمات التي تقدمها * (اختر واحدة أو أكثر)</label>
+          <div class="check-grid" id="regServices" style="margin-top:8px;"></div>
+          <div id="regSvcErr" style="display:none;color:var(--danger);font-size:12px;margin-top:6px;font-weight:700;">⚠️ اختر خدمة واحدة على الأقل</div>
+        </div>
+        <button class="btn-primary" id="registerBtn" onclick="doRegister()" style="margin-top:8px;">📤 إنشاء الحساب والبدء</button>
+        <p style="text-align:center;margin-top:14px;font-size:13px;color:var(--muted);">لديك حساب؟ <a href="#" onclick="switchAuthTab('login')" style="color:var(--primary);font-weight:700;">سجّل الدخول</a></p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN APP (hidden until login) -->
+<div id="mainApp" style="display:none;">
+  <nav class="nav">
+    <div class="nav-inner">
+      <div class="brand">
+        <div class="brand-icon">🔧</div>
+        <span class="brand-text">خدمتي</span>
+      </div>
+      <div class="user-info">
+        <span class="user-name" id="navUserName"></span>
+        <button class="logout-btn" onclick="doLogout()">خروج</button>
+      </div>
+    </div>
+  </nav>
+
+  <div class="app-wrap">
+    <div class="tabs">
+      <button class="tab active" onclick="showTab('requests',this)">🔔 الطلبات <span id="notifBadge" style="background:var(--danger);color:#fff;font-size:11px;font-weight:800;padding:1px 7px;border-radius:999px;margin-right:4px;"></span></button>
+      <button class="tab" onclick="showTab('profile',this)">👤 حسابي</button>
+      <button class="tab" onclick="showTab('earnings',this)">💰 الأرباح</button>
+    </div>
+
+    <!-- REQUESTS TAB -->
+    <div class="page active" id="tab-requests">
+      <!-- FCM Banner -->
+      <div class="fcm-banner" id="fcmBanner">
+        <div class="txt"><b>🔔 فعّل الإشعارات</b><small>لاستقبال الطلبات حتى عند إغلاق الصفحة</small></div>
+        <button class="fcm-btn" id="fcmBtn" onclick="enableNotifs()">السماح بالإشعارات</button>
+      </div>
+
+      <!-- Online Toggle -->
+      <div class="online-bar">
+        <div>
+          <div style="font-size:16px;font-weight:800;">الطلبات القريبة منك</div>
+          <div style="font-size:13px;color:var(--muted);margin-top:3px;">نطاق <span id="myRadius">10</span> كم من موقعك</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+          <button onclick="updateLiveLocation()" id="updateLocBtn" style="background:#f0f9ff;border:1.5px solid #bae6fd;color:#0369a1;border-radius:10px;padding:8px 14px;font-size:13px;font-weight:700;cursor:pointer;">
+            📍 <span id="locLabel">تحديث موقعي</span>
+          </button>
+          <div class="toggle-wrap">
+            <span style="font-size:13px;font-weight:700;color:var(--muted);">حالتي:</span>
+            <div class="toggle on" id="onlineToggle" onclick="toggleOnline()"></div>
+            <span id="onlineLabel" style="font-size:14px;font-weight:800;color:var(--success);">متاح</span>
+          </div>
+        </div>
+      </div>
+      <!-- Location Status -->
+      <div id="liveLocStatus" style="display:none;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:12px;padding:10px 16px;margin-bottom:12px;font-size:13px;font-weight:700;color:var(--success);"></div>
+
+      <!-- Stats -->
+      <div class="stats">
+        <div class="stat blue"><div class="lbl">طلبات الشهر</div><div class="num" id="stJobs">0</div></div>
+        <div class="stat green"><div class="lbl">أرباح الشهر</div><div class="num" id="stEarnings">0</div></div>
+        <div class="stat orange"><div class="lbl">في الانتظار</div><div class="num" id="stPending">0</div></div>
+        <div class="stat purple"><div class="lbl">تقييمي</div><div class="num" id="stRating">—</div></div>
+      </div>
+
+      <div id="requestsContainer">
+        <div class="empty-state"><div class="ei">😴</div><div style="font-size:17px;font-weight:800;margin-bottom:6px;">لا توجد طلبات حالياً</div><div>تأكد أنك متاح وفعّل الإشعارات</div></div>
+      </div>
+    </div>
+
+    <!-- PROFILE TAB -->
+    <div class="page" id="tab-profile">
+      <div class="form-card">
+        <h3>👤 بياناتي</h3>
+        <div class="fg2">
+          <div class="form-group"><label>الاسم</label><input type="text" id="pName" readonly style="background:#f8fafc;"/></div>
+          <div class="form-group"><label>الجوال</label><input type="tel" id="pPhone" readonly style="background:#f8fafc;"/></div>
+          <div class="form-group"><label>المنطقة</label><input type="text" id="pArea"/></div>
+          <div class="form-group"><label>نطاق الخدمة</label>
+            <select id="pRadius"><option value="5">5 كم</option><option value="10">10 كم</option><option value="15">15 كم</option><option value="20">20 كم</option></select>
+          </div>
+        </div>
+        <div style="margin-top:14px;">
+          <label style="display:block;margin-bottom:10px;font-size:13px;font-weight:700;">خدماتي</label>
+          <div class="check-grid" id="profileServices"></div>
+        </div>
+        <button class="btn-primary" onclick="saveProfile()" style="margin-top:16px;">💾 حفظ التغييرات</button>
+        <div id="profileMsg" style="display:none;margin-top:10px;padding:10px;border-radius:10px;font-weight:700;font-size:13px;"></div>
+      </div>
+      <div class="form-card">
+        <h3>🔒 تغيير كلمة المرور</h3>
+        <div class="fg2">
+          <div class="form-group"><label>كلمة المرور الجديدة</label><input type="password" id="newPass" placeholder="6 أحرف على الأقل"/></div>
+          <div class="form-group"><label>تأكيد كلمة المرور</label><input type="password" id="newPass2" placeholder="أعد الكتابة"/></div>
+        </div>
+        <button class="btn-primary" onclick="changePass()" style="margin-top:12px;width:auto;padding:11px 24px;">تغيير كلمة المرور</button>
+        <div id="passMsg" style="display:none;margin-top:10px;padding:10px;border-radius:10px;font-weight:700;font-size:13px;"></div>
+      </div>
+    </div>
+
+    <!-- EARNINGS TAB -->
+    <div class="page" id="tab-earnings">
+      <div class="form-card">
+        <h3>💰 ملخص الأرباح</h3>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px;">
+          <div style="background:var(--success-light);border-radius:12px;padding:16px;text-align:center;"><div style="font-size:12px;color:var(--success);font-weight:700;">هذا الشهر</div><div style="font-size:22px;font-weight:800;color:var(--success);margin-top:6px;" id="eMonth">0 ر.ع</div></div>
+          <div style="background:var(--primary-light);border-radius:12px;padding:16px;text-align:center;"><div style="font-size:12px;color:var(--primary);font-weight:700;">إجمالي الطلبات</div><div style="font-size:22px;font-weight:800;color:var(--primary);margin-top:6px;" id="eTotal">0</div></div>
+          <div style="background:#fff7ed;border-radius:12px;padding:16px;text-align:center;"><div style="font-size:12px;color:var(--orange);font-weight:700;">نسبة المنصة (15%)</div><div style="font-size:22px;font-weight:800;color:var(--orange);margin-top:6px;" id="eComm">0 ر.ع</div></div>
+        </div>
+        <div id="earningsList"><div class="empty-state" style="padding:20px;"><div>لا توجد معاملات بعد</div></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const SERVICES=[
+  {id:'plumb',icon:'🔧',name:'سباكة'},{id:'elec',icon:'⚡',name:'كهرباء'},
+  {id:'ac',icon:'❄️',name:'تكييف'},{id:'clean',icon:'🧹',name:'تنظيف'},
+  {id:'gas',icon:'🔥',name:'غاز'},{id:'water',icon:'💧',name:'تنكر مياه'},
+  {id:'pest',icon:'🐛',name:'مكافحة حشرات'},{id:'paint',icon:'🎨',name:'دهان'},
+  {id:'garden',icon:'🌿',name:'زراعة'},{id:'lock',icon:'🔑',name:'أقفال'},
+  {id:'appliance',icon:'📺',name:'أجهزة'},{id:'net',icon:'📡',name:'إنترنت'},
+  {id:'move',icon:'🚚',name:'نقل أثاث'},{id:'build',icon:'🏗️',name:'بناء'},
+  {id:'solar',icon:'☀️',name:'طاقة شمسية'},{id:'other',icon:'🛠️',name:'أخرى'},
+];
+const VAPID='BCIB6212HhAwI3_woaV1JAWbUmiMPGi96skN5ZXANH9rxF4DVW4m4yoDHIjZ5lgC2TWcE7J4eHJPFv658DrmIh4';
+
+let _db, currentProvider=null, isOnline=true, allRequests=[], unsubRequests=null;
+
+// ── بناء قائمة الخدمات في نموذج التسجيل
+let regSelSvcs=[];
+function buildSvcCheckboxes(containerId, selArr){
+  const c=document.getElementById(containerId);
+  if(!c)return;
+  c.innerHTML=SERVICES.map(s=>`
+    <div class="chk${selArr.includes(s.id)?' on':''}" id="${containerId}-${s.id}" onclick="toggleSvc('${containerId}','${s.id}')">
+      <span class="chk-icon">${s.icon}</span>${s.name}
+    </div>`).join('');
+}
+function toggleSvc(cid, id){
+  const arr = cid==='regServices' ? regSelSvcs : (currentProvider?.services||[]);
+  const idx=arr.indexOf(id);
+  if(idx===-1) arr.push(id); else arr.splice(idx,1);
+  document.getElementById(cid+'-'+id)?.classList.toggle('on', arr.includes(id));
+  if(cid==='regServices' && arr.length>0) document.getElementById('regSvcErr').style.display='none';
+}
+
+buildSvcCheckboxes('regServices', regSelSvcs);
+
+// ── خريطة التسجيل
+let regMap=null, regMarker=null, regCircle=null;
+
+function initRegMap(){
+  if(regMap) return;
+  regMap=L.map('regMap').setView([23.614,58.593],11);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'© OpenStreetMap'}).addTo(regMap);
+  regMap.on('click',e=>setRegLocation(e.latlng.lat,e.latlng.lng));
+}
+
+function setRegLocation(lat,lng){
+  document.getElementById('rLat').value=lat;
+  document.getElementById('rLng').value=lng;
+  document.getElementById('regLocLabel').style.display='block';
+  document.getElementById('regLocErr').style.display='none';
+  const radius=parseInt(document.getElementById('rRadius').value||10)*1000;
+  if(regMarker) regMap.removeLayer(regMarker);
+  if(regCircle) regMap.removeLayer(regCircle);
+  regMarker=L.marker([lat,lng]).addTo(regMap).bindPopup('موقعك').openPopup();
+  regCircle=L.circle([lat,lng],{radius,color:'#2563eb',fillColor:'#2563eb',fillOpacity:0.1,weight:2}).addTo(regMap);
+  regMap.setView([lat,lng],12);
+}
+
+function useGPSLocation(){
+  const btn=document.getElementById('gpsBtn');
+  btn.textContent='⏳ جاري التحديد...';btn.disabled=true;
+  navigator.geolocation?.getCurrentPosition(
+    pos=>{
+      initRegMap();
+      setRegLocation(pos.coords.latitude,pos.coords.longitude);
+      btn.textContent='✅ تم تحديد موقعي';btn.disabled=false;
+    },
+    ()=>{btn.textContent='📍 موقعي الحالي';btn.disabled=false;alert('تعذر تحديد موقعك — تأكد من صلاحيات الموقع');},
+    {enableHighAccuracy:true,timeout:15000}
+  );
+}
+
+function selectRadius(km, el){
+  document.getElementById('rRadius').value=km;
+  document.querySelectorAll('.radius-opt').forEach(o=>{
+    o.style.border='2px solid var(--border)';
+    o.style.background='';
+    o.querySelector('div:last-child').style.color='var(--muted)';
+    o.querySelector('div:last-child').style.fontWeight='400';
+  });
+  el.style.border='2px solid var(--primary)';
+  el.style.background='var(--primary-light)';
+  el.querySelector('div:last-child').style.color='var(--primary)';
+  el.querySelector('div:last-child').style.fontWeight='700';
+  // حدّث دائرة الخريطة
+  if(regCircle && document.getElementById('rLat').value){
+    regMap.removeLayer(regCircle);
+    const lat=parseFloat(document.getElementById('rLat').value);
+    const lng=parseFloat(document.getElementById('rLng').value);
+    regCircle=L.circle([lat,lng],{radius:km*1000,color:'#2563eb',fillColor:'#2563eb',fillOpacity:0.1,weight:2}).addTo(regMap);
+  }
+}
+
+// ── تحديث الموقع عند فتح التطبيق
+function updateLiveLocation(){
+  const btn=document.getElementById('updateLocBtn');
+  const lbl=document.getElementById('locLabel');
+  const statusEl=document.getElementById('liveLocStatus');
+  lbl.textContent='⏳ جاري...';
+  if(!navigator.geolocation){lbl.textContent='تحديث موقعي';return;}
+  navigator.geolocation.getCurrentPosition(
+    async pos=>{
+      const lat=pos.coords.latitude, lng=pos.coords.longitude;
+      // احفظ محلياً
+      window._myLat=lat; window._myLng=lng;
+      lbl.textContent='✅ موقعي محدّث';
+      statusEl.textContent=`📍 موقعك الحالي: ${lat.toFixed(4)}, ${lng.toFixed(4)} — الطلبات القريبة منك في نطاق ${currentProvider?.serviceRadius||10} كم`;
+      statusEl.style.display='block';
+      setTimeout(()=>{statusEl.style.display='none';lbl.textContent='تحديث موقعي';},5000);
+      // حدّث Firestore
+      if(currentProvider?.docId && window.updateProviderLocation){
+        await window.updateProviderLocation(currentProvider.docId, lat, lng);
+      }
+      // أعد تصفية الطلبات بالموقع الجديد
+      renderRequests();
+    },
+    ()=>{lbl.textContent='تحديث موقعي';},
+    {enableHighAccuracy:true,timeout:10000,maximumAge:30000}
+  );
+}
+function switchAuthTab(t){
+  document.getElementById('loginForm').style.display=t==='login'?'block':'none';
+  document.getElementById('registerForm').style.display=t==='register'?'block':'none';
+  document.getElementById('tabLogin').classList.toggle('active',t==='login');
+  document.getElementById('tabRegister').classList.toggle('active',t==='register');
+  clearAuthMsg();
+  // هيّئ الخريطة عند فتح تبويب التسجيل
+  if(t==='register') setTimeout(initRegMap, 200);
+}
+function showAuthErr(m){const e=document.getElementById('authErr');e.textContent=m;e.style.display='block';document.getElementById('authOk').style.display='none';}
+function showAuthOk(m){const e=document.getElementById('authOk');e.textContent=m;e.style.display='block';document.getElementById('authErr').style.display='none';}
+function clearAuthMsg(){document.getElementById('authErr').style.display='none';document.getElementById('authOk').style.display='none';}
+
+// ── تحميل تطبيق المختص
+function loadProviderApp(id, data){
+  currentProvider={docId:id,...data};
+  document.getElementById('authScreen').style.display='none';
+  document.getElementById('mainApp').style.display='block';
+  document.getElementById('navUserName').textContent=data.name||'';
+  document.getElementById('myRadius').textContent=data.serviceRadius||10;
+  if(Notification.permission==='granted') document.getElementById('fcmBanner').style.display='none';
+  document.getElementById('pName').value=data.name||'';
+  document.getElementById('pPhone').value=data.phone||'';
+  document.getElementById('pArea').value=data.area||'';
+  document.getElementById('pRadius').value=data.serviceRadius||10;
+  buildSvcCheckboxes('profileServices', data.services||[]);
+  // ابدأ الـ listener
+  startRequestsListener();
+  if(window.loadEarnings) window.loadEarnings();
+  // تحديث موقع تلقائي عند الدخول
+  if(data.locationLat && data.locationLng){
+    window._myLat=data.locationLat;
+    window._myLng=data.locationLng;
+  }
+  // اطلب الموقع الحالي تلقائياً بعد ثانية
+  setTimeout(()=>updateLiveLocation(), 1000);
+}
+
+// ── خروج
+function doLogout(){
+  localStorage.removeItem('khedmati_provider_id');
+  localStorage.removeItem('khedmati_provider_phone');
+  localStorage.removeItem('khedmati_provider_name');
+  if(unsubRequests)unsubRequests();
+  currentProvider=null;
+  document.getElementById('mainApp').style.display='none';
+  document.getElementById('authScreen').style.display='flex';
+  clearAuthMsg();
+}
+
+// ── تبويبات التطبيق
+function showTab(id,btn){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('tab-'+id).classList.add('active');
+  btn.classList.add('active');
+}
+
+// ── FCM إشعارات
+async function enableNotifs(){
+  const btn=document.getElementById('fcmBtn');
+  btn.disabled=true;btn.textContent='⏳...';
+  try{
+    const swPath=location.pathname.replace(/\/[^\/]*$/,'/')+'/firebase-messaging-sw.js';
+    const reg=await navigator.serviceWorker.register(swPath);
+    const perm=await Notification.requestPermission();
+    if(perm!=='granted'){btn.disabled=false;btn.textContent='السماح بالإشعارات';return;}
+    const {getMessaging,getToken}=await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-messaging.js');
+    const {initializeApp}=await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js');
+    const m=getMessaging();
+    const token=await getToken(m,{vapidKey:VAPID,serviceWorkerRegistration:reg});
+    // احفظ token في Firestore
+    const {doc,updateDoc}=await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js');
+    await updateDoc(doc(_db,'providers',currentProvider.docId),{fcmToken:token});
+    localStorage.setItem('khedmati_fcm_token',token);
+    document.getElementById('fcmBanner').style.display='none';
+  }catch(e){console.error(e);btn.disabled=false;btn.textContent='السماح بالإشعارات';}
+}
+
+// ── Toggle Online
+function toggleOnline(){
+  isOnline=!isOnline;
+  document.getElementById('onlineToggle').classList.toggle('on',isOnline);
+  document.getElementById('onlineLabel').textContent=isOnline?'متاح':'غير متاح';
+  document.getElementById('onlineLabel').style.color=isOnline?'var(--success)':'var(--muted)';
+}
+
+// ── Firestore listener — يُشغَّل من module
+function startRequestsListener(){
+  if(window.startRequestsListener) window.startRequestsListener();
+}
+
+// ── حساب المسافة (Haversine)
+function haversine(lat1,lng1,lat2,lng2){
+  const R=6371,r=Math.PI/180;
+  const dLat=(lat2-lat1)*r,dLng=(lng2-lng1)*r;
+  const a=Math.sin(dLat/2)**2+Math.cos(lat1*r)*Math.cos(lat2*r)*Math.sin(dLng/2)**2;
+  return 2*R*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));
+}
+
+function renderRequests(){
+  if(!currentProvider)return;
+  const mySvcs=currentProvider.services||[];
+  const myRadius=currentProvider.serviceRadius||10;
+  const myLat=window._myLat||currentProvider.locationLat;
+  const myLng=window._myLng||currentProvider.locationLng;
+
+  const newReqs=allRequests.filter(r=>{
+    if(r.status!=='جديد')return false;
+    if(!mySvcs.includes(r.serviceType)&&!mySvcs.includes('other'))return false;
+    if(myLat&&myLng&&r.locationLat&&r.locationLng){
+      const dist=haversine(myLat,myLng,r.locationLat,r.locationLng);
+      r._dist=dist;
+      return dist<=myRadius;
+    }
+    r._dist=null;
+    return true;
+  }).sort((a,b)=>(a._dist||999)-(b._dist||999));
+
+  const myReqs=allRequests.filter(r=>r.acceptedByProvider===currentProvider.docId&&(r.status==='مقبول'||r.status==='جاري'));
+
+  document.getElementById('stPending').textContent=newReqs.length;
+  const badge=document.getElementById('notifBadge');
+  badge.textContent=newReqs.length||'';
+  badge.style.display=newReqs.length?'inline':'none';
+
+  const c=document.getElementById('requestsContainer');
+  let html='';
+
+  if(!myLat||!myLng){
+    html+=`<div style="background:#fffbeb;border:1px solid #fcd34d;border-radius:14px;padding:14px 18px;margin-bottom:14px;font-size:13px;font-weight:700;color:#92400e;">
+      ⚠️ لم يتم تحديد موقعك — اضغط "📍 تحديث موقعي" لعرض الطلبات القريبة منك فقط
+    </div>`;
+  }
+
+  if(newReqs.length){
+    html+=`<div style="font-size:15px;font-weight:800;margin-bottom:12px;">🔔 طلبات جديدة — اقبل الآن!</div>`;
+    newReqs.forEach(r=>{
+      const svc=SERVICES.find(s=>s.id===r.serviceType)||{icon:'🛠️',name:r.serviceType};
+      const distTxt=r._dist!=null?`📍 ${r._dist.toFixed(1)} كم منك`:'';
+      html+=`<div class="req-card new" id="rc-${r.docId}">
+        <div class="req-head">
+          <div class="req-svc"><div class="req-icon">${svc.icon}</div>
+            <div><div class="req-title">${svc.name}</div>
+            <div class="req-sub">${r.customerName||'—'} ${distTxt?'• '+distTxt:''}</div></div>
+          </div>
+          <span class="badge badge-new">🆕 جديد</span>
+        </div>
+        <div class="req-details">
+          <div class="dbox"><div class="dl">الموقع</div><div class="dv">${r.building||r.locationText||'—'}</div></div>
+          <div class="dbox"><div class="dl">وقت الطلب</div><div class="dv">${formatTime(r.createdAt)}</div></div>
+          ${r.description?`<div class="dbox" style="grid-column:1/-1"><div class="dl">وصف المشكلة</div><div class="dv">${r.description}</div></div>`:''}
+        </div>
+        <div class="timer-bar"><div class="timer-fill" style="width:100%;"></div></div>
+        <div class="req-actions" style="margin-top:10px;">
+          <button class="btn btn-accept" id="ab-${r.docId}" onclick="acceptReq('${r.docId}')">✋ قبول الطلب</button>
+          ${r.locationLat?`<button class="btn btn-nav" onclick="openNav(${r.locationLat},${r.locationLng})">🗺️ الموقع</button>`:''}
+          <button class="btn btn-skip" onclick="skipReq('${r.docId}')">تمرير</button>
+        </div>
+      </div>`;
+    });
+  }
+
+  if(myReqs.length){
+    html+=`<div style="font-size:15px;font-weight:800;margin:16px 0 12px;">🔄 طلباتي الجارية</div>`;
+    myReqs.forEach(r=>{
+      const svc=SERVICES.find(s=>s.id===r.serviceType)||{icon:'🛠️',name:r.serviceType};
+      const isProgress=r.status==='جاري';
+      html+=`<div class="req-card ${isProgress?'progress':'accepted'}" id="rc-${r.docId}">
+        <div class="req-head">
+          <div class="req-svc"><div class="req-icon">${svc.icon}</div>
+            <div><div class="req-title">${svc.name}</div><div class="req-sub">${r.customerName||'—'}</div></div>
+          </div>
+          <span class="badge ${isProgress?'badge-progress':'badge-accepted'}">${isProgress?'🔄 جاري':'✅ مقبول'}</span>
+        </div>
+        <div class="req-details">
+          <div class="dbox"><div class="dl">الموقع</div><div class="dv">${r.building||r.locationText||'—'}</div></div>
+          <div class="dbox"><div class="dl">رقم العميل</div><div class="dv">${r.phone||'—'}</div></div>
+        </div>
+        <div class="req-actions">
+          ${r.phone?`<a href="tel:${r.phone}" class="btn btn-call" style="text-decoration:none;">📞 اتصال</a>`:''}
+          ${r.locationLat?`<button class="btn btn-nav" onclick="openNav(${r.locationLat},${r.locationLng})">🗺️ التنقل</button>`:''}
+          ${!isProgress?`<button class="btn btn-done" onclick="markProgress('${r.docId}')">🔄 بدأت العمل</button>`:`<button class="btn btn-done" onclick="markDone('${r.docId}')">✅ أكملت الخدمة</button>`}
+        </div>
+      </div>`;
+    });
+  }
+
+  if(!newReqs.length&&!myReqs.length){
+    html+='<div class="empty-state"><div class="ei">😴</div><div style="font-size:17px;font-weight:800;margin-bottom:6px;">لا توجد طلبات في نطاقك</div><div>اضغط "تحديث موقعي" أو وسّع نطاق خدمتك من حسابي</div></div>';
+  }
+  c.innerHTML=html;
+}
+
+function skipReq(rid){
+  const el=document.getElementById('rc-'+rid);
+  if(el){el.style.opacity='0.3';el.style.pointerEvents='none';}
+}
+
+function openNav(lat,lng){window.open(`https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`,'_blank');}
+
+// الدوال التالية تُنفَّذ من module الـ Firebase:
+// loadEarnings → window.loadEarnings
+// saveProfile  → window.saveProfile
+// changePass   → window.changePass
+// acceptReq    → window.acceptReq
+// markProgress → window.markProgress
+// markDone     → window.markDone
+
+function formatTime(t){
+  try{const d=new Date(t?.seconds?t.seconds*1000:t);return d.toLocaleString('ar-OM');}catch(_){return 'الآن';}
+}
+
+function playSound(){
+  try{
+    const ctx=new(window.AudioContext||window.webkitAudioContext)();
+    [880,1100,880].forEach((f,i)=>{
+      const o=ctx.createOscillator(),g=ctx.createGain();
+      o.connect(g);g.connect(ctx.destination);
+      o.frequency.value=f;o.type='sine';
+      g.gain.setValueAtTime(0.3,ctx.currentTime+i*.12);
+      g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+i*.12+.1);
+      o.start(ctx.currentTime+i*.12);o.stop(ctx.currentTime+i*.12+.15);
+    });
+  }catch(_){}
+}
+</script>
+
+<script type="module">
+import{initializeApp}from'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+import{getFirestore,collection,query,where,getDocs,addDoc,doc,getDoc,updateDoc,onSnapshot,orderBy,serverTimestamp}from'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+
+const app=initializeApp({
+  apiKey:"AIzaSyAYHnMCVFL0eDuTJGbYpyqPXykYAhY3RcI",
+  authDomain:"khedmati-cee2f.firebaseapp.com",
+  projectId:"khedmati-cee2f",
+  storageBucket:"khedmati-cee2f.firebasestorage.app",
+  messagingSenderId:"254099792190",
+  appId:"1:254099792190:web:45588d7178bfa4ba5b4c6f"
+});
+const db=getFirestore(app);
+_db=db;
+
+// ── تسجيل حساب جديد
+window.doRegister=async function(){
+  const name=document.getElementById('rName').value.trim();
+  const phone=document.getElementById('rPhone').value.trim();
+  const pass=document.getElementById('rPass').value;
+  const pass2=document.getElementById('rPass2').value;
+  const radius=document.getElementById('rRadius').value;
+  const lat=parseFloat(document.getElementById('rLat').value||'');
+  const lng=parseFloat(document.getElementById('rLng').value||'');
+  clearAuthMsg();
+  if(!name||!phone||!pass){showAuthErr('⚠️ أكمل الاسم والجوال وكلمة المرور');return;}
+  if(pass.length<6){showAuthErr('⚠️ كلمة المرور 6 أحرف على الأقل');return;}
+  if(pass!==pass2){showAuthErr('⚠️ كلمة المرور غير متطابقة');return;}
+  if(!lat||!lng){
+    document.getElementById('regLocErr').style.display='block';
+    document.getElementById('regMap').scrollIntoView({behavior:'smooth',block:'center'});
+    return;
+  }
+  if(regSelSvcs.length===0){document.getElementById('regSvcErr').style.display='block';return;}
+  const btn=document.getElementById('registerBtn');
+  btn.disabled=true;btn.textContent='⏳ جاري الإنشاء...';
+  try{
+    const exists=await getDocs(query(collection(db,'providers'),where('phone','==',phone)));
+    if(!exists.empty){showAuthErr('⚠️ هذا الجوال مسجّل — سجّل الدخول');btn.disabled=false;btn.textContent='📤 إنشاء الحساب والبدء';return;}
+    const passHash=btoa(phone+':'+pass);
+    const ref=await addDoc(collection(db,'providers'),{
+      name, phone, passHash,
+      serviceRadius: parseInt(radius),
+      services: [...regSelSvcs],
+      locationLat: lat,
+      locationLng: lng,
+      fcmToken:'', status:'active',
+      rating:0, jobCount:0,
+      createdAt: serverTimestamp(),
+    });
+    window._myLat=lat; window._myLng=lng;
+    localStorage.setItem('khedmati_provider_id',ref.id);
+    localStorage.setItem('khedmati_provider_phone',phone);
+    localStorage.setItem('khedmati_provider_name',name);
+    showAuthOk('✅ تم إنشاء حسابك! جاري الدخول...');
+    setTimeout(()=>loadProviderApp(ref.id,{name,phone,services:[...regSelSvcs],serviceRadius:parseInt(radius),locationLat:lat,locationLng:lng,status:'active',rating:0,jobCount:0}),1000);
+  }catch(e){console.error(e);showAuthErr('⚠️ خطأ: '+e.message);}
+  finally{btn.disabled=false;btn.textContent='📤 إنشاء الحساب والبدء';}
+};
+
+// ── تحديث الموقع في Firestore
+window.updateProviderLocation=async function(docId, lat, lng){
+  try{
+    await updateDoc(doc(db,'providers',docId),{
+      locationLat:lat, locationLng:lng,
+      lastSeen:serverTimestamp()
+    });
+  }catch(e){console.error(e);}
+};
+
+// ── تسجيل الدخول
+window.doLogin=async function(){
+  const phone=document.getElementById('loginPhone').value.trim();
+  const pass=document.getElementById('loginPass').value;
+  clearAuthMsg();
+  if(!phone||!pass){showAuthErr('⚠️ أدخل الجوال وكلمة المرور');return;}
+  const btn=document.getElementById('loginBtn');
+  btn.disabled=true;btn.textContent='⏳ جاري الدخول...';
+  try{
+    const snap=await getDocs(query(collection(db,'providers'),where('phone','==',phone)));
+    if(snap.empty){showAuthErr('⚠️ لا يوجد حساب بهذا الجوال');return;}
+    const docRef=snap.docs[0];
+    const data=docRef.data();
+    if(data.passHash!==btoa(phone+':'+pass)){showAuthErr('⚠️ كلمة المرور غير صحيحة');return;}
+    if(data.status==='rejected'){showAuthErr('⚠️ تم إيقاف هذا الحساب');return;}
+    localStorage.setItem('khedmati_provider_id',docRef.id);
+    localStorage.setItem('khedmati_provider_phone',phone);
+    localStorage.setItem('khedmati_provider_name',data.name);
+    loadProviderApp(docRef.id,data);
+  }catch(e){console.error(e);showAuthErr('⚠️ خطأ في الاتصال: '+e.message);}
+  finally{btn.disabled=false;btn.textContent='🔑 تسجيل الدخول';}
+};
+
+// ── تحقق من الجلسة
+async function checkSession(){
+  const id=localStorage.getItem('khedmati_provider_id');
+  if(!id)return;
+  try{
+    const snap=await getDoc(doc(db,'providers',id));
+    if(snap.exists())loadProviderApp(id,snap.data());
+  }catch(_){}
+}
+
+// ── Firestore listener للطلبات
+window.startRequestsListener=function(){
+  if(window._unsubRequests)window._unsubRequests();
+  window._unsubRequests=onSnapshot(
+    query(collection(db,'requests'),orderBy('createdAt','desc')),
+    snap=>{
+      allRequests=snap.docs.map(d=>({docId:d.id,...d.data()}));
+      renderRequests();
+    }
+  );
+};
+
+// ── قبول طلب
+window.acceptReq=async function(rid){
+  const btn=document.getElementById('ab-'+rid);
+  if(btn){btn.disabled=true;btn.textContent='⏳ جاري القبول...';}
+  try{
+    await updateDoc(doc(db,'requests',rid),{
+      status:'مقبول',
+      acceptedByProvider:currentProvider.docId,
+      providerName:currentProvider.name,
+      providerPhone:currentProvider.phone,
+      acceptedAt:serverTimestamp(),
+    });
+    playSound();
+  }catch(e){if(btn){btn.disabled=false;btn.textContent='✋ قبول الطلب';}}
+};
+
+window.markProgress=async function(rid){
+  await updateDoc(doc(db,'requests',rid),{status:'جاري'});
+};
+
+window.markDone=async function(rid){
+  const amount=prompt('أدخل قيمة الخدمة بالريال العماني:');
+  if(!amount||isNaN(amount))return;
+  await updateDoc(doc(db,'requests',rid),{status:'مكتمل',amount:parseFloat(amount),completedAt:serverTimestamp()});
+};
+
+// ── الأرباح
+window.loadEarnings=async function(){
+  if(!currentProvider)return;
+  try{
+    const snap=await getDocs(query(collection(db,'requests'),where('acceptedByProvider','==',currentProvider.docId),where('status','==','مكتمل')));
+    const done=snap.docs.map(d=>d.data());
+    const total=done.reduce((s,r)=>s+(r.amount||0),0);
+    const now=new Date();
+    const monthEarnings=done.filter(r=>{
+      try{const d=new Date(r.completedAt?.seconds?r.completedAt.seconds*1000:r.completedAt);return d.getMonth()===now.getMonth()&&d.getFullYear()===now.getFullYear();}catch(_){return false;}
+    }).reduce((s,r)=>s+(r.amount||0),0);
+    const monthJobs=done.filter(r=>{
+      try{const d=new Date(r.completedAt?.seconds?r.completedAt.seconds*1000:r.completedAt);return d.getMonth()===now.getMonth()&&d.getFullYear()===now.getFullYear();}catch(_){return false;}
+    }).length;
+    const el=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v;};
+    el('stEarnings',monthEarnings.toFixed(3));
+    el('stJobs',monthJobs);
+    el('eMonth',monthEarnings.toFixed(3)+' ر.ع');
+    el('eTotal',done.length);
+    el('eComm',(total*0.15).toFixed(3)+' ر.ع');
+    const list=document.getElementById('earningsList');
+    if(!list)return;
+    if(!done.length){list.innerHTML='<div class="empty-state" style="padding:20px;"><div>لا توجد معاملات بعد</div></div>';return;}
+    const svcMap=Object.fromEntries(SERVICES.map(s=>[s.id,s.icon+' '+s.name]));
+    list.innerHTML=`<div style="overflow:auto;border-radius:14px;border:1px solid var(--border);">
+      <table style="width:100%;border-collapse:collapse;min-width:500px;">
+        <thead><tr style="background:#f8fafc;">${['الخدمة','العميل','المبلغ','العمولة','الصافي'].map(h=>`<th style="padding:10px 12px;font-size:12px;text-align:right;border-bottom:1px solid var(--border);">${h}</th>`).join('')}</tr></thead>
+        <tbody>${done.map(r=>`<tr>
+          <td style="padding:9px 12px;">${svcMap[r.serviceType]||r.serviceType||'—'}</td>
+          <td style="padding:9px 12px;">${r.customerName||'—'}</td>
+          <td style="padding:9px 12px;font-weight:800;">${r.amount||0} ر.ع</td>
+          <td style="padding:9px 12px;color:var(--danger);">${((r.amount||0)*0.15).toFixed(3)}</td>
+          <td style="padding:9px 12px;font-weight:800;color:var(--success);">${((r.amount||0)*0.85).toFixed(3)}</td>
+        </tr>`).join('')}</tbody>
+      </table></div>`;
+  }catch(e){console.error(e);}
+};
+
+// ── حفظ الملف الشخصي
+window.saveProfile=async function(){
+  const area=document.getElementById('pArea').value.trim();
+  const radius=document.getElementById('pRadius').value;
+  const svcs=SERVICES.filter(s=>document.getElementById('profileServices-'+s.id)?.classList.contains('on')).map(s=>s.id);
+  const msg=document.getElementById('profileMsg');
+  try{
+    await updateDoc(doc(db,'providers',currentProvider.docId),{area,serviceRadius:parseInt(radius),services:svcs});
+    currentProvider={...currentProvider,area,serviceRadius:parseInt(radius),services:svcs};
+    document.getElementById('myRadius').textContent=radius;
+    msg.style.cssText='display:block;background:var(--success-light);color:var(--success);padding:10px;border-radius:10px;font-weight:700;font-size:13px;';
+    msg.textContent='✅ تم حفظ التغييرات';
+    setTimeout(()=>msg.style.display='none',3000);
+  }catch(e){
+    msg.style.cssText='display:block;background:var(--danger-light);color:var(--danger);padding:10px;border-radius:10px;font-weight:700;font-size:13px;';
+    msg.textContent='⚠️ '+e.message;
+  }
+};
+
+// ── تغيير كلمة المرور
+window.changePass=async function(){
+  const p=document.getElementById('newPass').value;
+  const p2=document.getElementById('newPass2').value;
+  const msg=document.getElementById('passMsg');
+  if(p.length<6){msg.style.cssText='display:block;background:var(--danger-light);color:var(--danger);padding:10px;border-radius:10px;font-weight:700;font-size:13px;';msg.textContent='⚠️ 6 أحرف على الأقل';return;}
+  if(p!==p2){msg.style.cssText='display:block;background:var(--danger-light);color:var(--danger);padding:10px;border-radius:10px;font-weight:700;font-size:13px;';msg.textContent='⚠️ كلمة المرور غير متطابقة';return;}
+  await updateDoc(doc(db,'providers',currentProvider.docId),{passHash:btoa(currentProvider.phone+':'+p)});
+  msg.style.cssText='display:block;background:var(--success-light);color:var(--success);padding:10px;border-radius:10px;font-weight:700;font-size:13px;';
+  msg.textContent='✅ تم تغيير كلمة المرور';
+  document.getElementById('newPass').value='';document.getElementById('newPass2').value='';
+  setTimeout(()=>msg.style.display='none',3000);
+};
+
+// ── تحديث الموقع في Firestore
+window.updateProviderLocation=async function(docId,lat,lng){
+  try{await updateDoc(doc(db,'providers',docId),{locationLat:lat,locationLng:lng,lastSeen:serverTimestamp()});}
+  catch(e){console.error(e);}
+};
+
+// ── تشغيل تلقائي
+checkSession();
+</script>
+</body>
+</html>
