@@ -1,0 +1,254 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>خدمتي — اطلب خدمة منزلية</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin=""/>
+<style>
+:root{
+  --bg:#f0f4ff;--card:#fff;--text:#111827;--muted:#6b7280;
+  --border:#e2e6ee;--shadow:0 4px 24px rgba(17,24,39,.07);
+  --primary:#2563eb;--primary-dark:#1d4ed8;--primary-light:#eff6ff;
+  --success:#059669;--success-light:#ecfdf5;
+  --danger:#dc2626;--danger-light:#fef2f2;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Tahoma,'Segoe UI',Arial,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
+.nav{background:#fff;border-bottom:1px solid var(--border);box-shadow:0 2px 12px rgba(0,0,0,.05);}
+.nav-inner{max-width:860px;margin:auto;padding:0 20px;height:64px;display:flex;align-items:center;justify-content:space-between;}
+.brand{display:flex;align-items:center;gap:10px;}
+.brand-icon{width:42px;height:42px;background:linear-gradient(135deg,#2563eb,#7c3aed);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;color:#fff;}
+.brand-text{font-size:22px;font-weight:900;background:linear-gradient(135deg,#2563eb,#7c3aed);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.wrap{max-width:860px;margin:0 auto;padding:24px 20px 60px;}
+.hero{background:linear-gradient(135deg,#1e40af,#6d28d9);border-radius:24px;padding:32px;color:#fff;margin-bottom:24px;text-align:center;}
+.hero h1{font-size:26px;font-weight:900;margin-bottom:8px;}
+.hero p{opacity:.9;font-size:15px;line-height:1.8;}
+.section-title{font-size:17px;font-weight:800;margin-bottom:14px;}
+.services-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:12px;margin-bottom:24px;}
+.srv-card{background:#fff;border:2px solid var(--border);border-radius:18px;padding:16px 10px;text-align:center;cursor:pointer;transition:.18s;}
+.srv-card:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(37,99,235,.12);border-color:#bfdbfe;}
+.srv-card.selected{border-color:var(--primary);background:var(--primary-light);box-shadow:0 0 0 3px rgba(37,99,235,.15);}
+.srv-icon{font-size:34px;margin-bottom:8px;font-family:'Segoe UI Emoji','Apple Color Emoji',sans-serif;}
+.srv-name{font-size:13px;font-weight:700;}
+.card{background:#fff;border:1px solid var(--border);border-radius:20px;padding:22px;box-shadow:var(--shadow);margin-bottom:18px;}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+.form-group{display:flex;flex-direction:column;gap:7px;}
+.form-group.full{grid-column:1/-1;}
+label{font-size:13px;font-weight:700;}
+input,select,textarea{border:1.5px solid var(--border);border-radius:12px;padding:12px 14px;font-size:14px;font-family:inherit;outline:none;transition:.18s;width:100%;}
+input:focus,select:focus,textarea:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(37,99,235,.1);}
+textarea{min-height:100px;resize:vertical;line-height:1.8;}
+.submit-btn{background:linear-gradient(135deg,#2563eb,#7c3aed);color:#fff;border:none;border-radius:14px;padding:15px;font-size:16px;font-weight:800;cursor:pointer;width:100%;margin-top:4px;transition:.18s;}
+.submit-btn:hover{opacity:.92;transform:translateY(-1px);}
+.submit-btn:disabled{opacity:.6;cursor:not-allowed;transform:none;}
+.loc-btn{background:#f0f7ff;border:1.5px solid #bfdbfe;color:var(--primary);border-radius:12px;padding:11px 16px;font-size:14px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:8px;white-space:nowrap;}
+.result-box{border-radius:14px;padding:14px 18px;font-weight:700;margin-top:14px;display:none;}
+.result-box.ok{background:var(--success-light);color:var(--success);border:1px solid #a7f3d0;display:block;}
+.result-box.err{background:var(--danger-light);color:var(--danger);border:1px solid #fecaca;display:block;}
+.how-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;}
+.how-item{background:#f8faff;border-radius:14px;padding:16px;text-align:center;}
+.how-item .num{width:32px;height:32px;background:var(--primary);color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;margin:0 auto 10px;}
+.how-item .title{font-weight:800;font-size:14px;margin-bottom:4px;}
+.how-item .desc{font-size:12px;color:var(--muted);line-height:1.6;}
+.map-modal{position:fixed;inset:0;background:rgba(0,0,0,.5);display:none;align-items:center;justify-content:center;z-index:9999;}
+.map-modal.show{display:flex;}
+.map-box{width:min(92vw,820px);background:#fff;border-radius:20px;padding:14px;box-shadow:0 20px 60px rgba(0,0,0,.2);}
+#leafletMap{width:100%;height:380px;border-radius:14px;}
+.map-footer{display:flex;gap:10px;align-items:center;margin-top:10px;flex-wrap:wrap;}
+@media(max-width:600px){.form-grid{grid-template-columns:1fr}.services-grid{grid-template-columns:repeat(3,1fr)}}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-inner">
+    <div class="brand">
+      <div class="brand-icon">🔧</div>
+      <span class="brand-text">خدمتي</span>
+    </div>
+    <a href="provider.html" style="font-size:13px;color:var(--primary);font-weight:700;text-decoration:none;background:var(--primary-light);padding:8px 16px;border-radius:10px;">أنت مقدم خدمة؟ سجّل هنا ←</a>
+  </div>
+</nav>
+
+<div class="wrap">
+  <div class="hero">
+    <h1>🔧 اطلب أي خدمة منزلية</h1>
+    <p>مختصون قريبون منك يستقبلون طلبك فوراً<br>بدون تسجيل — سريع وسهل</p>
+  </div>
+
+  <!-- اختر الخدمة -->
+  <p class="section-title">📋 اختر نوع الخدمة</p>
+  <div class="services-grid" id="servicesGrid"></div>
+
+  <!-- النموذج -->
+  <div class="card">
+    <p class="section-title">📝 تفاصيل طلبك</p>
+    <div class="form-grid">
+      <div class="form-group"><label>اسمك *</label><input type="text" id="cName" placeholder="محمد أحمد"/></div>
+      <div class="form-group"><label>رقم جوالك *</label><input type="tel" id="cPhone" placeholder="9689xxxxxxx"/></div>
+      <div class="form-group full">
+        <label>موقعك *</label>
+        <div style="display:flex;gap:8px;">
+          <input type="text" id="cLocation" placeholder="الحي، الشارع، رقم المبنى..." style="flex:1"/>
+          <button type="button" class="loc-btn" onclick="openMap()">📍 خريطة</button>
+        </div>
+      </div>
+      <div class="form-group full"><label>وصف المشكلة</label><textarea id="cDesc" placeholder="اشرح المشكلة..."></textarea></div>
+      <div class="form-group"><label>الوقت المفضل</label>
+        <select id="cTime">
+          <option>في أقرب وقت</option><option>خلال ساعتين</option>
+          <option>هذا الصباح</option><option>هذا المساء</option><option>غداً</option>
+        </select>
+      </div>
+      <div class="form-group"><label>صورة المشكلة (اختياري)</label><input type="file" id="cImage" accept="image/*"/></div>
+      <div class="form-group full">
+        <button class="submit-btn" id="sendBtn" onclick="sendRequest()">🚀 إرسال الطلب والبحث عن مختص</button>
+      </div>
+    </div>
+    <div class="result-box" id="resultBox"></div>
+  </div>
+
+  <!-- كيف يعمل -->
+  <div class="card">
+    <p class="section-title">⚡ كيف يعمل؟</p>
+    <div class="how-grid">
+      <div class="how-item"><div class="num">1</div><div class="title">أرسل طلبك</div><div class="desc">اختر الخدمة وحدد موقعك</div></div>
+      <div class="how-item"><div class="num">2</div><div class="title">إشعار للأقرب</div><div class="desc">المختصون القريبون يتلقون إشعاراً فورياً</div></div>
+      <div class="how-item"><div class="num">3</div><div class="title">أول من يقبل</div><div class="desc">أسرع مختص يضغط قبول يأخذ طلبك</div></div>
+      <div class="how-item"><div class="num">4</div><div class="title">تقييم الخدمة</div><div class="desc">بعد الانتهاء قيّم المختص</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- Map Modal -->
+<div class="map-modal" id="mapModal">
+  <div class="map-box">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+      <strong>📍 حدد موقعك</strong>
+      <button onclick="closeMap()" style="background:#f3f4f6;border:none;border-radius:8px;padding:6px 14px;cursor:pointer;font-weight:700;">✕</button>
+    </div>
+    <div id="leafletMap"></div>
+    <div class="map-footer">
+      <button class="loc-btn" onclick="useMyLoc()">📍 موقعي الحالي</button>
+      <button class="submit-btn" style="width:auto;padding:11px 22px;margin:0;" onclick="confirmLoc()">✓ تأكيد</button>
+      <span id="coordsHint" style="font-size:12px;color:var(--muted);"></span>
+    </div>
+  </div>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+<script>
+const SERVICES=[
+  {id:'plumb',icon:'🔧',name:'سباكة'},{id:'elec',icon:'⚡',name:'كهرباء'},
+  {id:'ac',icon:'❄️',name:'تكييف'},{id:'clean',icon:'🧹',name:'تنظيف'},
+  {id:'gas',icon:'🔥',name:'غاز'},{id:'water',icon:'💧',name:'تنكر مياه'},
+  {id:'pest',icon:'🐛',name:'مكافحة حشرات'},{id:'paint',icon:'🎨',name:'دهان'},
+  {id:'garden',icon:'🌿',name:'زراعة'},{id:'lock',icon:'🔑',name:'أقفال'},
+  {id:'appliance',icon:'📺',name:'أجهزة منزلية'},{id:'net',icon:'📡',name:'إنترنت وكاميرات'},
+  {id:'move',icon:'🚚',name:'نقل أثاث'},{id:'build',icon:'🏗️',name:'بناء وترميم'},
+  {id:'solar',icon:'☀️',name:'طاقة شمسية'},{id:'other',icon:'🛠️',name:'أخرى'},
+];
+
+let selSvc=null, selLat=null, selLng=null, map=null, marker=null;
+
+// بناء شبكة الخدمات
+document.getElementById('servicesGrid').innerHTML=SERVICES.map(s=>`
+  <div class="srv-card" id="s-${s.id}" onclick="pickSvc('${s.id}')">
+    <div class="srv-icon">${s.icon}</div>
+    <div class="srv-name">${s.name}</div>
+  </div>`).join('');
+
+function pickSvc(id){
+  document.querySelectorAll('.srv-card').forEach(c=>c.classList.remove('selected'));
+  document.getElementById('s-'+id).classList.add('selected');
+  selSvc=id;
+  const r=document.getElementById('resultBox');
+  if(r.classList.contains('err'))r.style.display='none';
+}
+
+// خريطة
+function openMap(){
+  document.getElementById('mapModal').classList.add('show');
+  setTimeout(()=>{
+    if(!map){
+      map=L.map('leafletMap').setView([23.614,58.593],12);
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+      map.on('click',e=>setMark(e.latlng.lat,e.latlng.lng));
+    }else map.invalidateSize();
+  },200);
+}
+function setMark(la,ln){
+  if(marker)map.removeLayer(marker);
+  marker=L.marker([la,ln]).addTo(map);
+  selLat=la;selLng=ln;
+  document.getElementById('coordsHint').textContent=la.toFixed(5)+', '+ln.toFixed(5);
+}
+function useMyLoc(){
+  navigator.geolocation?.getCurrentPosition(p=>{
+    map.setView([p.coords.latitude,p.coords.longitude],15);
+    setMark(p.coords.latitude,p.coords.longitude);
+  });
+}
+function confirmLoc(){
+  if(selLat)document.getElementById('cLocation').value=`موقع محدد (${selLat.toFixed(4)}, ${selLng.toFixed(4)})`;
+  closeMap();
+}
+function closeMap(){document.getElementById('mapModal').classList.remove('show');}
+
+// إرسال الطلب
+async function sendRequest(){
+  const name=document.getElementById('cName').value.trim();
+  const phone=document.getElementById('cPhone').value.trim();
+  const loc=document.getElementById('cLocation').value.trim();
+  const res=document.getElementById('resultBox');
+  if(!selSvc){
+    res.className='result-box err';res.textContent='⚠️ اختر نوع الخدمة أولاً';
+    document.getElementById('servicesGrid').scrollIntoView({behavior:'smooth',block:'center'});
+    return;
+  }
+  if(!name||!phone){res.className='result-box err';res.textContent='⚠️ أكمل الاسم ورقم الجوال';return;}
+  const btn=document.getElementById('sendBtn');
+  btn.disabled=true;btn.textContent='⏳ جاري الإرسال...';
+  try{
+    const {addDoc,collection,serverTimestamp}=await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js');
+    await addDoc(collection(window._db,'requests'),{
+      customerName:name, phone, building:loc, locationText:loc,
+      locationLat:selLat||null, locationLng:selLng||null,
+      serviceType:selSvc,
+      description:document.getElementById('cDesc').value.trim(),
+      preferredTime:document.getElementById('cTime').value,
+      status:'جديد', createdAt:serverTimestamp(),
+      acceptedBy:null, invoiceIssued:false, amount:0,
+    });
+    res.className='result-box ok';
+    res.innerHTML='✅ تم إرسال طلبك! يتم إشعار المختصين القريبين منك الآن...<br><small style="font-weight:400;">احتفظ بجوالك — سيتصل بك المختص قريباً</small>';
+    // reset
+    document.getElementById('cName').value='';
+    document.getElementById('cPhone').value='';
+    document.getElementById('cLocation').value='';
+    document.getElementById('cDesc').value='';
+    document.querySelectorAll('.srv-card').forEach(c=>c.classList.remove('selected'));
+    selSvc=null;selLat=null;selLng=null;
+  }catch(e){
+    console.error(e);
+    res.className='result-box err';res.textContent='⚠️ حدث خطأ — تأكد من الاتصال';
+  }finally{btn.disabled=false;btn.textContent='🚀 إرسال الطلب والبحث عن مختص';}
+}
+</script>
+
+<script type="module">
+import{initializeApp}from'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+import{getFirestore}from'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+const app=initializeApp({
+  apiKey:"AIzaSyAYHnMCVFL0eDuTJGbYpyqPXykYAhY3RcI",
+  authDomain:"khedmati-cee2f.firebaseapp.com",
+  projectId:"khedmati-cee2f",
+  storageBucket:"khedmati-cee2f.firebasestorage.app",
+  messagingSenderId:"254099792190",
+  appId:"1:254099792190:web:45588d7178bfa4ba5b4c6f"
+});
+window._db=getFirestore(app);
+</script>
+</body>
+</html>

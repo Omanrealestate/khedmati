@@ -1,0 +1,587 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>خدمتي — لوحة التحكم</title>
+<style>
+:root{
+  --bg:#f0f4ff;--card:#fff;--text:#111827;--muted:#6b7280;
+  --border:#e2e6ee;--shadow:0 4px 24px rgba(17,24,39,.07);
+  --primary:#2563eb;--primary-light:#eff6ff;
+  --success:#059669;--success-light:#ecfdf5;
+  --warning:#d97706;--warning-light:#fffbeb;
+  --danger:#dc2626;--danger-light:#fef2f2;
+  --orange:#ea580c;--purple:#7c3aed;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Tahoma,'Segoe UI',Arial,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
+
+/* LOGIN */
+.login-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#1e3a8a,#4c1d95);}
+.login-card{background:#fff;border-radius:24px;padding:36px;width:100%;max-width:400px;box-shadow:0 20px 60px rgba(0,0,0,.3);}
+.login-logo{text-align:center;margin-bottom:24px;}
+.login-logo .icon{font-size:48px;margin-bottom:8px;}
+.login-logo h1{font-size:22px;font-weight:900;color:#1e3a8a;}
+.login-logo p{font-size:14px;color:var(--muted);margin-top:4px;}
+.form-group{margin-bottom:16px;}
+label{display:block;font-size:13px;font-weight:700;margin-bottom:6px;}
+input{width:100%;border:1.5px solid var(--border);border-radius:12px;padding:13px 14px;font-size:14px;font-family:inherit;outline:none;transition:.18s;}
+input:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(37,99,235,.1);}
+.login-btn{background:linear-gradient(135deg,#1e40af,#4c1d95);color:#fff;border:none;border-radius:12px;padding:14px;font-size:15px;font-weight:800;cursor:pointer;width:100%;transition:.18s;}
+.login-btn:hover{opacity:.92;}
+.login-err{background:var(--danger-light);color:var(--danger);border-radius:10px;padding:10px 14px;font-size:13px;font-weight:700;margin-bottom:14px;display:none;}
+
+/* MAIN */
+.nav{background:#1e3a8a;color:#fff;position:sticky;top:0;z-index:50;box-shadow:0 2px 12px rgba(0,0,0,.2);}
+.nav-inner{max-width:1400px;margin:auto;padding:0 20px;height:60px;display:flex;align-items:center;justify-content:space-between;}
+.brand{display:flex;align-items:center;gap:10px;font-size:18px;font-weight:900;color:#fff;}
+.brand-icon{font-size:24px;}
+.admin-badge{background:#fbbf24;color:#92400e;font-size:11px;font-weight:800;padding:2px 8px;border-radius:6px;margin-right:6px;}
+.logout-btn{background:rgba(255,255,255,.15);color:#fff;border:none;border-radius:8px;padding:6px 14px;cursor:pointer;font-size:13px;font-weight:700;}
+.wrap{max-width:1400px;margin:0 auto;padding:20px 20px 60px;}
+
+/* TABS */
+.tabs{display:flex;gap:4px;background:#f3f4f6;border-radius:14px;padding:4px;margin-bottom:20px;overflow-x:auto;}
+.tab{padding:10px 18px;border-radius:10px;cursor:pointer;font-size:14px;font-weight:700;border:none;background:transparent;color:var(--muted);transition:.2s;white-space:nowrap;}
+.tab.active{background:#fff;color:#1e3a8a;box-shadow:0 2px 8px rgba(0,0,0,.1);}
+.page{display:none;}
+.page.active{display:block;}
+
+/* STATS */
+.stats{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:20px;}
+.stat{background:#fff;border:1px solid var(--border);border-radius:16px;padding:16px;box-shadow:var(--shadow);border-right:4px solid #e2e6ee;}
+.stat.blue{border-right-color:var(--primary);}
+.stat.green{border-right-color:var(--success);}
+.stat.orange{border-right-color:var(--orange);}
+.stat.purple{border-right-color:var(--purple);}
+.stat.gold{border-right-color:#d97706;}
+.stat .lbl{font-size:12px;color:var(--muted);font-weight:700;}
+.stat .num{font-size:22px;font-weight:800;margin-top:6px;}
+
+/* PANELS */
+.panel{background:#fff;border:1px solid var(--border);border-radius:18px;padding:18px;box-shadow:var(--shadow);margin-bottom:16px;}
+.panel h3{font-size:15px;font-weight:800;margin-bottom:14px;display:flex;align-items:center;gap:8px;}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+
+/* TABLE */
+.tbl-wrap{overflow:auto;border-radius:14px;border:1px solid var(--border);}
+table{width:100%;border-collapse:collapse;min-width:700px;}
+th{background:#f8fafc;padding:11px 12px;font-size:12px;font-weight:700;text-align:right;border-bottom:1px solid var(--border);}
+td{padding:11px 12px;font-size:13px;border-bottom:1px solid var(--border);vertical-align:middle;}
+tr:last-child td{border-bottom:none;}
+.badge{font-size:11px;font-weight:700;padding:4px 10px;border-radius:8px;display:inline-block;}
+.b-new{background:var(--warning-light);color:var(--warning);}
+.b-accepted{background:var(--primary-light);color:var(--primary);}
+.b-progress{background:#f5f3ff;color:var(--purple);}
+.b-done{background:var(--success-light);color:var(--success);}
+.b-pending{background:#fff7ed;color:var(--orange);}
+.b-active{background:var(--success-light);color:var(--success);}
+.b-rejected{background:var(--danger-light);color:var(--danger);}
+
+/* FILTER */
+.filter-row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:14px;}
+.search{flex:1;min-width:180px;padding:10px 14px;border:1.5px solid var(--border);border-radius:12px;font-size:14px;font-family:inherit;outline:none;}
+.search:focus{border-color:var(--primary);}
+.fbtn{padding:8px 14px;border-radius:10px;border:1.5px solid var(--border);background:#fff;font-size:13px;font-weight:700;cursor:pointer;color:var(--muted);transition:.15s;}
+.fbtn.active{border-color:var(--primary);color:var(--primary);background:var(--primary-light);}
+
+/* ACTION BTNS */
+.abtn{font-size:12px;font-weight:700;padding:5px 12px;border-radius:8px;cursor:pointer;border:none;transition:.15s;margin-left:4px;}
+.abtn-yes{background:var(--success-light);color:var(--success);}
+.abtn-no{background:var(--danger-light);color:var(--danger);}
+.abtn-view{background:#f3f4f6;color:var(--text);}
+
+/* BAR CHARTS */
+.bar-item{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
+.bar-label{font-size:13px;font-weight:700;width:100px;flex-shrink:0;}
+.bar-track{flex:1;height:10px;background:#f3f4f6;border-radius:5px;overflow:hidden;}
+.bar-fill{height:100%;border-radius:5px;transition:.5s;}
+.bar-pct{font-size:12px;color:var(--muted);width:35px;text-align:left;}
+
+/* SETTINGS */
+.settings-form{display:flex;flex-direction:column;gap:14px;}
+.settings-form label{font-size:13px;font-weight:700;display:block;margin-bottom:6px;}
+.settings-form input,.settings-form select{border:1.5px solid var(--border);border-radius:12px;padding:11px 14px;font-size:14px;font-family:inherit;outline:none;width:100%;}
+.save-btn{background:linear-gradient(135deg,#1e40af,#4c1d95);color:#fff;border:none;border-radius:12px;padding:13px;font-size:14px;font-weight:800;cursor:pointer;transition:.18s;}
+.save-btn:hover{opacity:.92;}
+
+@media(max-width:1100px){.stats{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:700px){.stats{grid-template-columns:repeat(2,1fr)}.grid2{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="loginScreen" class="login-wrap">
+  <div class="login-card">
+    <div class="login-logo">
+      <div class="icon">⚙️</div>
+      <h1>لوحة تحكم خدمتي</h1>
+      <p>للمسؤولين فقط</p>
+    </div>
+    <div id="loginErr" class="login-err"></div>
+    <div class="form-group"><label>اسم المستخدم</label><input type="text" id="adminUser" placeholder="admin"/></div>
+    <div class="form-group"><label>كلمة المرور</label><input type="password" id="adminPass" placeholder="••••••••" onkeydown="if(event.key==='Enter')doAdminLogin()"/></div>
+    <button class="login-btn" onclick="doAdminLogin()">🔑 دخول</button>
+  </div>
+</div>
+
+<!-- MAIN APP -->
+<div id="mainApp" style="display:none;">
+  <nav class="nav">
+    <div class="nav-inner">
+      <div class="brand">
+        <span class="brand-icon">🔧</span>
+        <span>خدمتي</span>
+        <span class="admin-badge">ADMIN</span>
+      </div>
+      <button class="logout-btn" onclick="doLogout()">خروج</button>
+    </div>
+  </nav>
+
+  <div class="wrap">
+    <div class="tabs">
+      <button class="tab active" onclick="showTab('overview',this)">📊 نظرة عامة</button>
+      <button class="tab" onclick="showTab('requests',this)">📋 الطلبات</button>
+      <button class="tab" onclick="showTab('providers',this)">👷 المختصون</button>
+      <button class="tab" onclick="showTab('finance',this)">💰 المالية</button>
+      <button class="tab" onclick="showTab('settings',this)">⚙️ الإعدادات</button>
+    </div>
+
+    <!-- OVERVIEW -->
+    <div class="page active" id="tab-overview">
+      <div class="stats">
+        <div class="stat blue"><div class="lbl">طلبات اليوم</div><div class="num" id="sToday">0</div></div>
+        <div class="stat orange"><div class="lbl">قيد التنفيذ</div><div class="num" id="sProgress">0</div></div>
+        <div class="stat green"><div class="lbl">مكتملة</div><div class="num" id="sDone">0</div></div>
+        <div class="stat purple"><div class="lbl">مختصون نشطون</div><div class="num" id="sProviders">0</div></div>
+        <div class="stat gold"><div class="lbl">عمولة الشهر</div><div class="num" id="sCommission">0</div></div>
+      </div>
+      <div class="grid2">
+        <div class="panel">
+          <h3>📈 أكثر الخدمات طلباً</h3>
+          <div id="topServicesChart"></div>
+        </div>
+        <div class="panel">
+          <h3>⏰ آخر الطلبات</h3>
+          <div id="latestRequests"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- REQUESTS -->
+    <div class="page" id="tab-requests">
+      <div class="panel">
+        <div class="filter-row">
+          <input type="text" class="search" id="reqSearch" placeholder="🔍 بحث..."/>
+          <button class="fbtn active" onclick="filterReq(this,'all')">الكل</button>
+          <button class="fbtn" onclick="filterReq(this,'جديد')">جديد</button>
+          <button class="fbtn" onclick="filterReq(this,'مقبول')">مقبول</button>
+          <button class="fbtn" onclick="filterReq(this,'جاري')">جاري</button>
+          <button class="fbtn" onclick="filterReq(this,'مكتمل')">مكتمل</button>
+        </div>
+        <div class="tbl-wrap">
+          <table>
+            <thead><tr><th>#</th><th>الخدمة</th><th>العميل</th><th>الموقع</th><th>المختص</th><th>الوقت</th><th>المبلغ</th><th>الحالة</th><th>إجراء</th></tr></thead>
+            <tbody id="reqTable"><tr><td colspan="9" style="text-align:center;padding:30px;color:var(--muted);">جاري التحميل...</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- PROVIDERS -->
+    <div class="page" id="tab-providers">
+      <div class="grid2">
+        <div class="panel">
+          <h3>🆕 طلبات تسجيل جديدة</h3>
+          <div id="pendingProviders"><div style="color:var(--muted);font-size:13px;">لا توجد طلبات جديدة</div></div>
+        </div>
+        <div class="panel">
+          <h3>🏆 أفضل المختصين</h3>
+          <div id="topProviders"></div>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="filter-row">
+          <input type="text" class="search" id="provSearch" placeholder="🔍 بحث باسم المختص..."/>
+          <button class="fbtn active" onclick="filterProv(this,'all')">الكل</button>
+          <button class="fbtn" onclick="filterProv(this,'active')">نشط</button>
+          <button class="fbtn" onclick="filterProv(this,'pending')">قيد المراجعة</button>
+        </div>
+        <div class="tbl-wrap">
+          <table>
+            <thead><tr><th>الاسم</th><th>الجوال</th><th>الخدمات</th><th>المنطقة</th><th>الطلبات</th><th>التقييم</th><th>الحالة</th><th>إجراء</th></tr></thead>
+            <tbody id="provTable"><tr><td colspan="8" style="text-align:center;padding:30px;color:var(--muted);">جاري التحميل...</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- FINANCE -->
+    <div class="page" id="tab-finance">
+      <div class="stats" style="grid-template-columns:repeat(3,1fr);">
+        <div class="stat green"><div class="lbl">إجمالي المعاملات</div><div class="num" id="fTotal">0 ر.ع</div></div>
+        <div class="stat blue"><div class="lbl">عمولة المنصة (15%)</div><div class="num" id="fComm">0 ر.ع</div></div>
+        <div class="stat orange"><div class="lbl">مستحق للمختصين</div><div class="num" id="fOwed">0 ر.ع</div></div>
+      </div>
+      <div class="panel">
+        <h3>📄 سجل المعاملات المكتملة</h3>
+        <div class="tbl-wrap">
+          <table>
+            <thead><tr><th>الخدمة</th><th>العميل</th><th>المختص</th><th>التاريخ</th><th>المبلغ</th><th>العمولة</th><th>صافي المختص</th></tr></thead>
+            <tbody id="finTable"><tr><td colspan="7" style="text-align:center;padding:30px;color:var(--muted);">جاري التحميل...</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- SETTINGS -->
+    <div class="page" id="tab-settings">
+      <div class="grid2">
+        <div class="panel">
+          <h3>⚙️ إعدادات المنصة</h3>
+          <div class="settings-form">
+            <div><label>نسبة العمولة (%)</label><input type="number" id="setComm" value="15" min="1" max="50"/></div>
+            <div><label>نطاق البحث الافتراضي (كم)</label><input type="number" id="setRadius" value="10" min="1" max="100"/></div>
+            <div><label>مدة انتظار قبول الطلب (دقيقة)</label><input type="number" id="setWait" value="5" min="1" max="30"/></div>
+            <div><label>حالة المنصة</label><select id="setPlatformStatus"><option value="active">مفتوحة</option><option value="maintenance">صيانة</option></select></div>
+            <button class="save-btn" onclick="saveSettings()">💾 حفظ الإعدادات</button>
+            <div id="settingsMsg" style="display:none;padding:10px;border-radius:10px;font-weight:700;font-size:13px;"></div>
+          </div>
+        </div>
+        <div class="panel">
+          <h3>🔒 تغيير بيانات المسؤول</h3>
+          <div class="settings-form">
+            <div><label>اسم المستخدم الجديد</label><input type="text" id="newAdminUser" placeholder="admin"/></div>
+            <div><label>كلمة المرور الجديدة</label><input type="password" id="newAdminPass" placeholder="6 أحرف على الأقل"/></div>
+            <div><label>تأكيد كلمة المرور</label><input type="password" id="newAdminPass2" placeholder="أعد الكتابة"/></div>
+            <button class="save-btn" onclick="changeAdminCreds()">🔑 تحديث بيانات الدخول</button>
+            <div id="adminCredMsg" style="display:none;padding:10px;border-radius:10px;font-weight:700;font-size:13px;"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const SERVICES=[
+  {id:'plumb',icon:'🔧',name:'سباكة'},{id:'elec',icon:'⚡',name:'كهرباء'},
+  {id:'ac',icon:'❄️',name:'تكييف'},{id:'clean',icon:'🧹',name:'تنظيف'},
+  {id:'gas',icon:'🔥',name:'غاز'},{id:'water',icon:'💧',name:'تنكر مياه'},
+  {id:'pest',icon:'🐛',name:'مكافحة حشرات'},{id:'paint',icon:'🎨',name:'دهان'},
+  {id:'garden',icon:'🌿',name:'زراعة'},{id:'lock',icon:'🔑',name:'أقفال'},
+  {id:'appliance',icon:'📺',name:'أجهزة'},{id:'net',icon:'📡',name:'إنترنت'},
+  {id:'move',icon:'🚚',name:'نقل أثاث'},{id:'build',icon:'🏗️',name:'بناء'},
+  {id:'solar',icon:'☀️',name:'طاقة شمسية'},{id:'other',icon:'🛠️',name:'أخرى'},
+];
+const svcMap=Object.fromEntries(SERVICES.map(s=>[s.id,s.icon+' '+s.name]));
+
+// بيانات الدخول الافتراضية — تُخزّن في localStorage
+const DEFAULT_ADMIN={user:'admin',pass:'khedmati2025'};
+let _db, allReqs=[], allProvs=[], reqFilter='all', provFilter='all';
+
+// ── Login
+function doAdminLogin(){
+  const u=document.getElementById('adminUser').value.trim();
+  const p=document.getElementById('adminPass').value;
+  const saved=JSON.parse(localStorage.getItem('khedmati_admin')||'null')||DEFAULT_ADMIN;
+  if(u===saved.user && p===saved.pass){
+    localStorage.setItem('khedmati_admin_logged','1');
+    document.getElementById('loginScreen').style.display='none';
+    document.getElementById('mainApp').style.display='block';
+    startListeners();
+  } else {
+    const e=document.getElementById('loginErr');
+    e.textContent='⚠️ اسم المستخدم أو كلمة المرور غير صحيحة';
+    e.style.display='block';
+    setTimeout(()=>e.style.display='none',3000);
+  }
+}
+
+function doLogout(){
+  localStorage.removeItem('khedmati_admin_logged');
+  document.getElementById('mainApp').style.display='none';
+  document.getElementById('loginScreen').style.display='flex';
+  document.getElementById('adminUser').value='';
+  document.getElementById('adminPass').value='';
+}
+
+function checkAdminSession(){
+  if(localStorage.getItem('khedmati_admin_logged')==='1'){
+    document.getElementById('loginScreen').style.display='none';
+    document.getElementById('mainApp').style.display='block';
+    startListeners();
+  }
+}
+
+// ── Tabs
+function showTab(id,btn){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('tab-'+id).classList.add('active');
+  btn.classList.add('active');
+}
+
+// ── Firestore listeners
+async function startListeners(){
+  const {collection,query,orderBy,onSnapshot}=await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js');
+
+  // Requests
+  onSnapshot(query(collection(_db,'requests'),orderBy('createdAt','desc')),snap=>{
+    allReqs=snap.docs.map(d=>({docId:d.id,...d.data()}));
+    renderOverview();
+    renderRequests();
+    renderFinance();
+  });
+
+  // Providers
+  onSnapshot(query(collection(_db,'providers'),orderBy('createdAt','desc')),snap=>{
+    allProvs=snap.docs.map(d=>({docId:d.id,...d.data()}));
+    renderOverview();
+    renderProviders();
+  });
+}
+
+// ── Overview
+function renderOverview(){
+  const today=new Date().toDateString();
+  const todayReqs=allReqs.filter(r=>fmtDate(r.createdAt)===today);
+  const done=allReqs.filter(r=>r.status==='مكتمل');
+  const comm=done.reduce((s,r)=>s+(r.amount||0)*0.15,0);
+  const activeProvs=allProvs.filter(p=>p.status==='active').length;
+  const monthDone=done.filter(r=>{
+    try{const d=new Date(r.completedAt?.seconds?r.completedAt.seconds*1000:r.completedAt);const n=new Date();return d.getMonth()===n.getMonth()&&d.getFullYear()===n.getFullYear();}catch(_){return false;}
+  });
+  const monthComm=monthDone.reduce((s,r)=>s+(r.amount||0)*0.15,0);
+
+  el('sToday',todayReqs.length);
+  el('sProgress',allReqs.filter(r=>r.status==='جاري'||r.status==='مقبول').length);
+  el('sDone',done.length);
+  el('sProviders',activeProvs);
+  el('sCommission',monthComm.toFixed(3)+' ر.ع');
+
+  // Top services chart
+  const counts={};
+  allReqs.forEach(r=>{counts[r.serviceType]=(counts[r.serviceType]||0)+1;});
+  const sorted=Object.entries(counts).sort((a,b)=>b[1]-a[1]).slice(0,6);
+  const max=sorted[0]?.[1]||1;
+  const colors=['#2563eb','#059669','#d97706','#7c3aed','#dc2626','#ea580c'];
+  const chartEl=document.getElementById('topServicesChart');
+  if(chartEl){
+    if(!sorted.length){chartEl.innerHTML='<div style="color:var(--muted);font-size:13px;">لا توجد بيانات بعد</div>';return;}
+    chartEl.innerHTML=sorted.map(([id,cnt],i)=>`
+      <div class="bar-item">
+        <div class="bar-label">${svcMap[id]||id}</div>
+        <div class="bar-track"><div class="bar-fill" style="width:${(cnt/max*100).toFixed(0)}%;background:${colors[i%colors.length]};"></div></div>
+        <div class="bar-pct">${cnt}</div>
+      </div>`).join('');
+  }
+
+  // Latest requests
+  const latestEl=document.getElementById('latestRequests');
+  if(latestEl){
+    const latest=allReqs.slice(0,5);
+    if(!latest.length){latestEl.innerHTML='<div style="color:var(--muted);font-size:13px;">لا توجد طلبات بعد</div>';return;}
+    latestEl.innerHTML=latest.map(r=>`
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border);">
+        <div><div style="font-size:13px;font-weight:700;">${svcMap[r.serviceType]||r.serviceType||'—'} — ${r.customerName||'—'}</div>
+        <div style="font-size:12px;color:var(--muted);margin-top:2px;">${r.building||r.locationText||'—'}</div></div>
+        <span class="badge ${badgeCls(r.status)}">${r.status||'—'}</span>
+      </div>`).join('');
+  }
+}
+
+// ── Requests table
+function renderRequests(){
+  const search=(document.getElementById('reqSearch')?.value||'').toLowerCase();
+  let rows=allReqs.filter(r=>{
+    if(reqFilter!=='all'&&r.status!==reqFilter)return false;
+    if(search&&!(r.customerName||'').toLowerCase().includes(search)&&!(r.serviceType||'').toLowerCase().includes(search)&&!(r.building||'').toLowerCase().includes(search))return false;
+    return true;
+  });
+  const tb=document.getElementById('reqTable');
+  if(!tb)return;
+  if(!rows.length){tb.innerHTML='<tr><td colspan="9" style="text-align:center;padding:30px;color:var(--muted);">لا توجد نتائج</td></tr>';return;}
+  tb.innerHTML=rows.map(r=>`<tr>
+    <td style="color:var(--muted);font-size:11px;">#${r.docId.slice(-5).toUpperCase()}</td>
+    <td>${svcMap[r.serviceType]||r.serviceType||'—'}</td>
+    <td><div style="font-weight:700;">${r.customerName||'—'}</div><div style="font-size:11px;color:var(--muted);">${r.phone||''}</div></td>
+    <td style="font-size:12px;">${r.building||r.locationText||'—'}</td>
+    <td style="font-size:12px;">${r.providerName||'—'}</td>
+    <td style="font-size:11px;color:var(--muted);">${fmtTime(r.createdAt)}</td>
+    <td style="font-weight:800;color:var(--success);">${r.amount?r.amount+' ر.ع':'—'}</td>
+    <td><span class="badge ${badgeCls(r.status)}">${r.status||'—'}</span></td>
+    <td><button class="abtn abtn-view" onclick="showReqDetail('${r.docId}')">عرض</button></td>
+  </tr>`).join('');
+}
+
+function filterReq(btn,f){
+  reqFilter=f;
+  document.querySelectorAll('#tab-requests .fbtn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderRequests();
+}
+document.addEventListener('input',e=>{ if(e.target.id==='reqSearch')renderRequests(); if(e.target.id==='provSearch')renderProviders(); });
+
+function showReqDetail(id){
+  const r=allReqs.find(x=>x.docId===id);
+  if(!r)return;
+  alert(`📋 تفاصيل الطلب\n\nالخدمة: ${svcMap[r.serviceType]||r.serviceType}\nالعميل: ${r.customerName||'—'}\nالجوال: ${r.phone||'—'}\nالموقع: ${r.building||r.locationText||'—'}\nالوصف: ${r.description||'—'}\nالحالة: ${r.status}\nالمختص: ${r.providerName||'لم يُقبل بعد'}\nالمبلغ: ${r.amount||0} ر.ع`);
+}
+
+// ── Providers
+function renderProviders(){
+  const search=(document.getElementById('provSearch')?.value||'').toLowerCase();
+  const pending=allProvs.filter(p=>p.status==='pending');
+  const pendEl=document.getElementById('pendingProviders');
+  if(pendEl){
+    if(!pending.length){pendEl.innerHTML='<div style="color:var(--muted);font-size:13px;">لا توجد طلبات جديدة</div>';}
+    else{pendEl.innerHTML=pending.map(p=>`
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid var(--border);">
+        <div><div style="font-size:14px;font-weight:700;">${p.name}</div>
+        <div style="font-size:12px;color:var(--muted);">${(p.services||[]).map(s=>svcMap[s]||s).join(' • ')} • ${p.area||'—'}</div></div>
+        <div><button class="abtn abtn-yes" onclick="approveProvider('${p.docId}','${p.name}')">✓ قبول</button>
+        <button class="abtn abtn-no" onclick="rejectProvider('${p.docId}','${p.name}')">✗ رفض</button></div>
+      </div>`).join('');}
+  }
+
+  // Top providers
+  const topEl=document.getElementById('topProviders');
+  if(topEl){
+    const top=allProvs.filter(p=>p.status==='active').sort((a,b)=>(b.jobCount||0)-(a.jobCount||0)).slice(0,5);
+    if(!top.length){topEl.innerHTML='<div style="color:var(--muted);font-size:13px;">لا توجد بيانات</div>';}
+    else{topEl.innerHTML=top.map((p,i)=>`
+      <div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border);">
+        <div style="width:26px;height:26px;background:${['#fbbf24','#9ca3af','#cd7c2c','#e5e7eb','#e5e7eb'][i]};border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;color:#fff;font-size:12px;">${i+1}</div>
+        <div style="flex:1;"><div style="font-size:13px;font-weight:700;">${p.name}</div><div style="font-size:11px;color:var(--muted);">${p.area||'—'} • ${p.jobCount||0} طلب</div></div>
+        <div style="font-size:13px;color:#d97706;">⭐ ${p.rating||'—'}</div>
+      </div>`).join('');}
+  }
+
+  // Table
+  let rows=allProvs.filter(p=>{
+    if(provFilter!=='all'&&p.status!==provFilter)return false;
+    if(search&&!(p.name||'').toLowerCase().includes(search)&&!(p.phone||'').includes(search))return false;
+    return true;
+  });
+  const tb=document.getElementById('provTable');
+  if(!tb)return;
+  if(!rows.length){tb.innerHTML='<tr><td colspan="8" style="text-align:center;padding:30px;color:var(--muted);">لا توجد نتائج</td></tr>';return;}
+  tb.innerHTML=rows.map(p=>`<tr>
+    <td style="font-weight:700;">${p.name}</td>
+    <td style="font-size:12px;">${p.phone||'—'}</td>
+    <td style="font-size:11px;">${(p.services||[]).slice(0,3).map(s=>SERVICES.find(x=>x.id===s)?.icon||s).join(' ')}</td>
+    <td style="font-size:12px;">${p.area||'—'}</td>
+    <td style="font-weight:700;">${p.jobCount||0}</td>
+    <td>${p.rating?'⭐ '+p.rating:'—'}</td>
+    <td><span class="badge ${p.status==='active'?'b-active':p.status==='pending'?'b-pending':'b-rejected'}">${p.status==='active'?'نشط':p.status==='pending'?'قيد المراجعة':'موقوف'}</span></td>
+    <td>
+      ${p.status==='pending'?`<button class="abtn abtn-yes" onclick="approveProvider('${p.docId}','${p.name}')">✓ قبول</button>`:''}
+      ${p.status==='active'?`<button class="abtn abtn-no" onclick="suspendProvider('${p.docId}','${p.name}')">إيقاف</button>`:''}
+      ${p.status==='rejected'?`<button class="abtn abtn-yes" onclick="approveProvider('${p.docId}','${p.name}')">إعادة تفعيل</button>`:''}
+    </td>
+  </tr>`).join('');
+
+  el('sProviders',allProvs.filter(p=>p.status==='active').length);
+}
+
+function filterProv(btn,f){
+  provFilter=f;
+  document.querySelectorAll('#tab-providers .fbtn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderProviders();
+}
+
+async function approveProvider(id,name){
+  if(!confirm(`قبول تسجيل ${name}؟`))return;
+  const {doc,updateDoc}=await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js');
+  await updateDoc(doc(_db,'providers',id),{status:'active'});
+}
+async function rejectProvider(id,name){
+  if(!confirm(`رفض طلب ${name}؟`))return;
+  const {doc,updateDoc}=await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js');
+  await updateDoc(doc(_db,'providers',id),{status:'rejected'});
+}
+async function suspendProvider(id,name){
+  if(!confirm(`إيقاف حساب ${name}؟`))return;
+  const {doc,updateDoc}=await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js');
+  await updateDoc(doc(_db,'providers',id),{status:'rejected'});
+}
+
+// ── Finance
+function renderFinance(){
+  const done=allReqs.filter(r=>r.status==='مكتمل');
+  const total=done.reduce((s,r)=>s+(r.amount||0),0);
+  const comm=total*0.15;
+  const owed=total*0.85;
+  el('fTotal',total.toFixed(3)+' ر.ع');
+  el('fComm',comm.toFixed(3)+' ر.ع');
+  el('fOwed',owed.toFixed(3)+' ر.ع');
+  const tb=document.getElementById('finTable');
+  if(!tb)return;
+  if(!done.length){tb.innerHTML='<tr><td colspan="7" style="text-align:center;padding:30px;color:var(--muted);">لا توجد معاملات بعد</td></tr>';return;}
+  tb.innerHTML=done.map(r=>`<tr>
+    <td>${svcMap[r.serviceType]||r.serviceType||'—'}</td>
+    <td>${r.customerName||'—'}</td>
+    <td>${r.providerName||'—'}</td>
+    <td style="font-size:12px;">${fmtTime(r.completedAt||r.createdAt)}</td>
+    <td style="font-weight:800;">${r.amount||0} ر.ع</td>
+    <td style="color:var(--danger);">${((r.amount||0)*0.15).toFixed(3)} ر.ع</td>
+    <td style="font-weight:800;color:var(--success);">${((r.amount||0)*0.85).toFixed(3)} ر.ع</td>
+  </tr>`).join('');
+}
+
+// ── Settings
+function saveSettings(){
+  const msg=document.getElementById('settingsMsg');
+  // يمكن حفظها في Firestore لاحقاً
+  localStorage.setItem('khedmati_settings',JSON.stringify({
+    commission:document.getElementById('setComm').value,
+    radius:document.getElementById('setRadius').value,
+    wait:document.getElementById('setWait').value,
+    status:document.getElementById('setPlatformStatus').value,
+  }));
+  msg.style.cssText='display:block;background:var(--success-light);color:var(--success);';
+  msg.textContent='✅ تم حفظ الإعدادات';
+  setTimeout(()=>msg.style.display='none',3000);
+}
+
+function changeAdminCreds(){
+  const u=document.getElementById('newAdminUser').value.trim();
+  const p=document.getElementById('newAdminPass').value;
+  const p2=document.getElementById('newAdminPass2').value;
+  const msg=document.getElementById('adminCredMsg');
+  if(!u||!p){msg.style.cssText='display:block;background:var(--danger-light);color:var(--danger);';msg.textContent='⚠️ أكمل الحقول';return;}
+  if(p!==p2){msg.style.cssText='display:block;background:var(--danger-light);color:var(--danger);';msg.textContent='⚠️ كلمة المرور غير متطابقة';return;}
+  if(p.length<6){msg.style.cssText='display:block;background:var(--danger-light);color:var(--danger);';msg.textContent='⚠️ 6 أحرف على الأقل';return;}
+  localStorage.setItem('khedmati_admin',JSON.stringify({user:u,pass:p}));
+  msg.style.cssText='display:block;background:var(--success-light);color:var(--success);';
+  msg.textContent='✅ تم تحديث بيانات الدخول';
+  setTimeout(()=>msg.style.display='none',3000);
+}
+
+// ── Helpers
+function el(id,v){const e=document.getElementById(id);if(e)e.textContent=v;}
+function badgeCls(s){return{جديد:'b-new',مقبول:'b-accepted',جاري:'b-progress',مكتمل:'b-done',ملغي:'b-rejected'}[s]||'b-new';}
+function fmtDate(t){try{return new Date(t?.seconds?t.seconds*1000:t).toDateString();}catch(_){return '';}}
+function fmtTime(t){try{return new Date(t?.seconds?t.seconds*1000:t).toLocaleString('ar-OM',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});}catch(_){return '—';}}
+</script>
+
+<script type="module">
+import{initializeApp}from'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+import{getFirestore}from'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+const app=initializeApp({
+  apiKey:"AIzaSyAYHnMCVFL0eDuTJGbYpyqPXykYAhY3RcI",
+  authDomain:"khedmati-cee2f.firebaseapp.com",
+  projectId:"khedmati-cee2f",
+  storageBucket:"khedmati-cee2f.firebasestorage.app",
+  messagingSenderId:"254099792190",
+  appId:"1:254099792190:web:45588d7178bfa4ba5b4c6f"
+});
+window._db=getFirestore(app);
+setTimeout(()=>checkAdminSession(),300);
+</script>
+</body>
+</html>
