@@ -1,0 +1,507 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>خدمتي — لوحة التحكم</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --navy:#0D1B5E;--blue:#1B3FAB;--blue-lt:#4A7AFF;
+  --orange:#E05A1A;--green:#0A7A4A;
+  --gray-dk:#2C2C2A;--gray-md:#888780;--gray-lt:#F1EFE8;
+  --bg:#F7F6F3;--white:#FFFFFF;--border:#E2E0D8;
+  --shadow:0 4px 24px rgba(13,27,94,.07);
+  --success:#0A7A4A;--success-lt:#E6F5EF;
+  --danger:#DC2626;--danger-lt:#FEF2F2;
+  --warning:#BA7517;--warning-lt:#FFF8E6;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Cairo',Tahoma,Arial,sans-serif;background:var(--bg);color:var(--gray-dk);min-height:100vh;}
+
+/* ── LOGIN ── */
+.login-wrap{
+  min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;
+  background:linear-gradient(135deg,var(--navy) 0%,#0A1240 100%);
+}
+.login-bg{position:fixed;inset:0;background-image:linear-gradient(rgba(74,122,255,.06) 1px,transparent 1px),linear-gradient(90deg,rgba(74,122,255,.06) 1px,transparent 1px);background-size:50px 50px;pointer-events:none;}
+.login-card{background:var(--white);border-radius:24px;box-shadow:0 24px 80px rgba(0,0,0,.35);width:100%;max-width:420px;overflow:hidden;position:relative;z-index:1;}
+.login-head{background:linear-gradient(135deg,var(--navy),#0A1240);padding:32px;text-align:center;color:var(--white);}
+.login-logo{width:70px;height:70px;background:rgba(255,255,255,.1);border-radius:18px;display:flex;align-items:center;justify-content:center;margin:0 auto 14px;border:1px solid rgba(255,255,255,.2);}
+.login-logo svg{width:42px;height:42px;}
+.login-head h1{font-size:20px;font-weight:900;margin-bottom:5px;}
+.login-head p{font-size:12px;opacity:.6;font-weight:400;}
+.login-badge{display:inline-block;background:var(--orange);color:#fff;font-size:10px;font-weight:700;padding:3px 10px;border-radius:999px;margin-top:6px;letter-spacing:1px;}
+.login-body{padding:28px;}
+.fg{margin-bottom:16px;}
+label{display:block;font-size:13px;font-weight:700;color:var(--gray-dk);margin-bottom:6px;}
+input{width:100%;border:1.5px solid var(--border);border-radius:11px;padding:12px 14px;font-size:14px;font-family:'Cairo',Tahoma,sans-serif;outline:none;transition:.18s;color:var(--gray-dk);}
+input:focus{border-color:var(--navy);box-shadow:0 0 0 3px rgba(13,27,94,.08);}
+.login-btn{background:linear-gradient(135deg,var(--navy),var(--blue));color:var(--white);border:none;border-radius:11px;padding:14px;font-size:15px;font-weight:700;cursor:pointer;width:100%;font-family:'Cairo',sans-serif;transition:.18s;box-shadow:0 4px 14px rgba(13,27,94,.25);}
+.login-btn:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(13,27,94,.3);}
+.login-err{background:var(--danger-lt);color:var(--danger);border:1px solid #FECACA;border-radius:10px;padding:10px 14px;font-size:13px;font-weight:700;margin-bottom:14px;display:none;}
+
+/* ── NAV ── */
+.nav{background:var(--navy);position:sticky;top:0;z-index:50;box-shadow:0 2px 20px rgba(13,27,94,.5);}
+.nav-inner{max-width:1400px;margin:auto;padding:0 20px;height:58px;display:flex;align-items:center;justify-content:space-between;}
+.brand{display:flex;align-items:center;gap:10px;text-decoration:none;}
+.brand-mark{width:34px;height:34px;background:var(--blue);border-radius:8px;display:flex;align-items:center;justify-content:center;}
+.brand-mark svg{width:20px;height:20px;}
+.brand-name{font-size:18px;font-weight:900;color:var(--white);}
+.brand-name span{color:var(--orange);}
+.admin-chip{background:var(--orange);color:#fff;font-size:10px;font-weight:700;padding:2px 9px;border-radius:6px;letter-spacing:1px;}
+.logout-btn{font-size:13px;color:var(--white);background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);border-radius:8px;padding:6px 14px;cursor:pointer;font-family:'Cairo',sans-serif;font-weight:700;transition:.15s;}
+.logout-btn:hover{background:var(--danger);}
+
+/* ── LAYOUT ── */
+.wrap{max-width:1400px;margin:0 auto;padding:20px 20px 60px;}
+.tabs{display:flex;gap:4px;background:rgba(13,27,94,.06);border-radius:12px;padding:4px;margin-bottom:20px;overflow-x:auto;}
+.tab{padding:10px 18px;border-radius:9px;cursor:pointer;font-size:13px;font-weight:700;border:none;background:transparent;color:var(--gray-md);transition:.2s;white-space:nowrap;font-family:'Cairo',sans-serif;}
+.tab.on{background:var(--white);color:var(--navy);box-shadow:0 2px 8px rgba(13,27,94,.1);}
+.page{display:none;}
+.page.on{display:block;}
+
+/* ── STATS ── */
+.stats{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:20px;}
+.stat{background:var(--white);border:1px solid var(--border);border-radius:14px;padding:16px;box-shadow:var(--shadow);border-right:4px solid transparent;}
+.stat.navy{border-right-color:var(--navy);}
+.stat.orange{border-right-color:var(--orange);}
+.stat.green{border-right-color:var(--green);}
+.stat.blue{border-right-color:var(--blue-lt);}
+.stat.gold{border-right-color:#D97706;}
+.stat-lbl{font-size:11px;color:var(--gray-md);font-weight:700;}
+.stat-num{font-size:22px;font-weight:900;margin-top:5px;color:var(--navy);}
+
+/* ── PANELS ── */
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;}
+.panel{background:var(--white);border:1px solid var(--border);border-radius:16px;padding:18px;box-shadow:var(--shadow);}
+.panel-title{font-size:14px;font-weight:700;color:var(--navy);margin-bottom:14px;display:flex;align-items:center;gap:8px;}
+
+/* ── FILTER ── */
+.filter-row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:14px;}
+.search{flex:1;min-width:180px;padding:10px 14px;border:1.5px solid var(--border);border-radius:11px;font-size:13px;font-family:'Cairo',sans-serif;outline:none;color:var(--gray-dk);}
+.search:focus{border-color:var(--navy);}
+.fbtn{padding:8px 14px;border-radius:9px;border:1.5px solid var(--border);background:var(--white);font-size:12px;font-weight:700;cursor:pointer;color:var(--gray-md);transition:.15s;font-family:'Cairo',sans-serif;}
+.fbtn.on{border-color:var(--orange);color:var(--orange);background:#FFF0E6;}
+.fbtn:hover{border-color:var(--navy);color:var(--navy);}
+
+/* ── TABLE ── */
+.tbl-wrap{overflow:auto;border-radius:12px;border:1px solid var(--border);}
+table{width:100%;border-collapse:collapse;min-width:700px;}
+th{background:var(--bg);padding:11px 12px;font-size:12px;font-weight:700;text-align:right;border-bottom:1px solid var(--border);color:var(--gray-md);}
+td{padding:11px 12px;font-size:13px;border-bottom:1px solid var(--border);vertical-align:middle;}
+tr:last-child td{border-bottom:none;}
+tr:hover td{background:rgba(13,27,94,.015);}
+
+/* ── BADGES ── */
+.badge{font-size:11px;font-weight:700;padding:4px 10px;border-radius:8px;display:inline-block;}
+.b-new     {background:var(--warning-lt);color:var(--warning);}
+.b-accepted{background:#E6EDFF;color:var(--navy);}
+.b-progress{background:var(--success-lt);color:var(--green);}
+.b-done    {background:var(--success-lt);color:var(--green);}
+.b-active  {background:var(--success-lt);color:var(--green);}
+.b-pending {background:var(--warning-lt);color:var(--warning);}
+.b-rejected{background:var(--danger-lt);color:var(--danger);}
+
+/* ── ACTION BUTTONS ── */
+.abtn{font-size:11px;font-weight:700;padding:5px 12px;border-radius:7px;cursor:pointer;border:none;transition:.15s;font-family:'Cairo',sans-serif;}
+.abtn-yes{background:var(--success-lt);color:var(--green);}
+.abtn-yes:hover{background:var(--green);color:#fff;}
+.abtn-no{background:var(--danger-lt);color:var(--danger);}
+.abtn-no:hover{background:var(--danger);color:#fff;}
+.abtn-view{background:var(--bg);color:var(--gray-dk);}
+.abtn-view:hover{background:var(--border);}
+
+/* ── PROVIDER ROW ── */
+.prov-row{display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid var(--border);}
+.prov-row:last-child{border-bottom:none;}
+.prov-name{font-size:13px;font-weight:700;color:var(--navy);}
+.prov-meta{font-size:11px;color:var(--gray-md);margin-top:2px;}
+
+/* ── BAR CHART ── */
+.bar-item{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
+.bar-lbl{font-size:13px;font-weight:700;width:110px;flex-shrink:0;color:var(--gray-dk);}
+.bar-track{flex:1;height:10px;background:var(--border);border-radius:5px;overflow:hidden;}
+.bar-fill{height:100%;border-radius:5px;transition:.6s;}
+.bar-pct{font-size:12px;color:var(--gray-md);width:32px;text-align:left;}
+
+/* ── SETTINGS ── */
+.settings-form{display:flex;flex-direction:column;gap:14px;}
+.settings-form label{font-size:13px;font-weight:700;display:block;margin-bottom:5px;}
+.settings-form input,.settings-form select{border:1.5px solid var(--border);border-radius:11px;padding:11px 14px;font-size:14px;font-family:'Cairo',Tahoma,sans-serif;outline:none;width:100%;}
+.save-btn{background:linear-gradient(135deg,var(--navy),var(--blue));color:var(--white);border:none;border-radius:11px;padding:13px;font-size:14px;font-weight:700;cursor:pointer;transition:.18s;font-family:'Cairo',sans-serif;box-shadow:0 4px 12px rgba(13,27,94,.2);}
+.save-btn:hover{transform:translateY(-1px);}
+.set-msg{display:none;margin-top:10px;padding:10px 14px;border-radius:9px;font-size:13px;font-weight:700;}
+
+/* ── FINANCE CARDS ── */
+.fin-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px;}
+.fin-card{border-radius:14px;padding:18px;}
+
+@media(max-width:1100px){.stats{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:700px){.stats{grid-template-columns:repeat(2,1fr)}.grid2{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="loginScreen" class="login-wrap">
+  <div class="login-bg"></div>
+  <div class="login-card">
+    <div class="login-head">
+      <div class="login-logo">
+        <svg viewBox="0 0 66 66" fill="none"><circle cx="24" cy="26" r="13" stroke="white" stroke-width="5" fill="none"/><circle cx="24" cy="26" r="5.5" fill="white"/><rect x="35" y="21" width="21" height="9" rx="3" fill="white"/><rect x="50" y="30" width="6" height="11" rx="2" fill="white"/><path d="M12 50 Q24 43 36 50 Q48 57 56 50" stroke="#4A7AFF" stroke-width="2.5" stroke-linecap="round" fill="none"/></svg>
+      </div>
+      <h1>لوحة تحكم خدمتي</h1>
+      <p>للمسؤولين المعتمدين فقط</p>
+      <span class="login-badge">ADMIN ACCESS</span>
+    </div>
+    <div class="login-body">
+      <div id="loginErr" class="login-err"></div>
+      <div class="fg"><label>اسم المستخدم</label><input type="text" id="adminUser" placeholder="admin" onkeydown="if(event.key==='Enter')doAdminLogin()"/></div>
+      <div class="fg"><label>كلمة المرور</label><input type="password" id="adminPass" placeholder="••••••••" onkeydown="if(event.key==='Enter')doAdminLogin()"/></div>
+      <button class="login-btn" onclick="doAdminLogin()">🔑 دخول لوحة التحكم</button>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div id="mainApp" style="display:none;">
+  <nav class="nav">
+    <div class="nav-inner">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <a class="brand" href="index.html">
+          <div class="brand-mark"><svg viewBox="0 0 66 66" fill="none"><circle cx="24" cy="26" r="13" stroke="white" stroke-width="5" fill="none"/><circle cx="24" cy="26" r="5.5" fill="white"/><rect x="35" y="21" width="21" height="9" rx="3" fill="white"/><rect x="50" y="30" width="6" height="11" rx="2" fill="white"/><path d="M12 50 Q24 43 36 50 Q48 57 56 50" stroke="#4A7AFF" stroke-width="2.5" stroke-linecap="round" fill="none"/></svg></div>
+          <span class="brand-name">خدم<span>تي</span></span>
+        </a>
+        <span class="admin-chip">ADMIN</span>
+      </div>
+      <button class="logout-btn" onclick="doLogout()">تسجيل الخروج</button>
+    </div>
+  </nav>
+
+  <div class="wrap">
+    <div class="tabs">
+      <button class="tab on" onclick="showPage('overview',this)">📊 نظرة عامة</button>
+      <button class="tab" onclick="showPage('requests',this)">📋 الطلبات</button>
+      <button class="tab" onclick="showPage('providers',this)">👷 المختصون</button>
+      <button class="tab" onclick="showPage('finance',this)">💰 المالية</button>
+      <button class="tab" onclick="showPage('settings',this)">⚙️ الإعدادات</button>
+    </div>
+
+    <!-- نظرة عامة -->
+    <div class="page on" id="page-overview">
+      <div class="stats">
+        <div class="stat navy"><div class="stat-lbl">طلبات اليوم</div><div class="stat-num" id="sToday">0</div></div>
+        <div class="stat orange"><div class="stat-lbl">قيد التنفيذ</div><div class="stat-num" id="sProgress">0</div></div>
+        <div class="stat green"><div class="stat-lbl">مكتملة</div><div class="stat-num" id="sDone">0</div></div>
+        <div class="stat blue"><div class="stat-lbl">مختصون نشطون</div><div class="stat-num" id="sProviders">0</div></div>
+        <div class="stat gold"><div class="stat-lbl">عمولة الشهر</div><div class="stat-num" id="sCommission">0</div></div>
+      </div>
+      <div class="grid2">
+        <div class="panel">
+          <div class="panel-title">📈 أكثر الخدمات طلباً</div>
+          <div id="topServicesChart"></div>
+        </div>
+        <div class="panel">
+          <div class="panel-title">⏰ آخر الطلبات</div>
+          <div id="latestRequests"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- الطلبات -->
+    <div class="page" id="page-requests">
+      <div class="panel">
+        <div class="filter-row">
+          <input type="text" class="search" id="reqSearch" placeholder="🔍 بحث باسم العميل أو الخدمة..." oninput="renderRequests()"/>
+          <button class="fbtn on" onclick="filterReq(this,'all')">الكل</button>
+          <button class="fbtn" onclick="filterReq(this,'جديد')">جديد</button>
+          <button class="fbtn" onclick="filterReq(this,'مقبول')">مقبول</button>
+          <button class="fbtn" onclick="filterReq(this,'جاري')">جاري</button>
+          <button class="fbtn" onclick="filterReq(this,'مكتمل')">مكتمل</button>
+        </div>
+        <div class="tbl-wrap">
+          <table>
+            <thead><tr><th>#</th><th>الخدمة</th><th>العميل</th><th>الموقع</th><th>المختص</th><th>الوقت</th><th>المبلغ</th><th>الحالة</th><th>إجراء</th></tr></thead>
+            <tbody id="reqTable"><tr><td colspan="9" style="text-align:center;padding:30px;color:var(--gray-md);">جاري التحميل...</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- المختصون -->
+    <div class="page" id="page-providers">
+      <div class="grid2">
+        <div class="panel">
+          <div class="panel-title">🆕 طلبات تسجيل جديدة</div>
+          <div id="pendingProviders"><div style="color:var(--gray-md);font-size:13px;">لا توجد طلبات جديدة</div></div>
+        </div>
+        <div class="panel">
+          <div class="panel-title">🏆 أفضل المختصين</div>
+          <div id="topProviders"><div style="color:var(--gray-md);font-size:13px;">لا توجد بيانات بعد</div></div>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="filter-row">
+          <input type="text" class="search" id="provSearch" placeholder="🔍 بحث باسم المختص..." oninput="renderProviders()"/>
+          <button class="fbtn on" onclick="filterProv(this,'all')">الكل</button>
+          <button class="fbtn" onclick="filterProv(this,'active')">نشط</button>
+          <button class="fbtn" onclick="filterProv(this,'pending')">قيد المراجعة</button>
+        </div>
+        <div class="tbl-wrap">
+          <table>
+            <thead><tr><th>الاسم</th><th>الجوال</th><th>الخدمات</th><th>المنطقة</th><th>الطلبات</th><th>الحالة</th><th>إجراء</th></tr></thead>
+            <tbody id="provTable"><tr><td colspan="7" style="text-align:center;padding:30px;color:var(--gray-md);">جاري التحميل...</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- المالية -->
+    <div class="page" id="page-finance">
+      <div class="fin-cards">
+        <div class="fin-card" style="background:var(--success-lt);">
+          <div style="font-size:12px;font-weight:700;color:var(--green);margin-bottom:6px;">إجمالي المعاملات</div>
+          <div style="font-size:26px;font-weight:900;color:var(--green);" id="fTotal">0 ر.ع</div>
+        </div>
+        <div class="fin-card" style="background:#E6EDFF;">
+          <div style="font-size:12px;font-weight:700;color:var(--navy);margin-bottom:6px;">عمولة المنصة (15%)</div>
+          <div style="font-size:26px;font-weight:900;color:var(--navy);" id="fComm">0 ر.ع</div>
+        </div>
+        <div class="fin-card" style="background:#FFF0E6;">
+          <div style="font-size:12px;font-weight:700;color:var(--orange);margin-bottom:6px;">مستحق للمختصين (85%)</div>
+          <div style="font-size:26px;font-weight:900;color:var(--orange);" id="fOwed">0 ر.ع</div>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="panel-title">📄 سجل المعاملات المكتملة</div>
+        <div class="tbl-wrap">
+          <table>
+            <thead><tr><th>الخدمة</th><th>العميل</th><th>المختص</th><th>التاريخ</th><th>المبلغ</th><th>العمولة</th><th>صافي المختص</th></tr></thead>
+            <tbody id="finTable"><tr><td colspan="7" style="text-align:center;padding:30px;color:var(--gray-md);">جاري التحميل...</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- الإعدادات -->
+    <div class="page" id="page-settings">
+      <div class="grid2">
+        <div class="panel">
+          <div class="panel-title">⚙️ إعدادات المنصة</div>
+          <div class="settings-form">
+            <div><label>نسبة العمولة (%)</label><input type="number" id="setComm" value="15" min="1" max="50"/></div>
+            <div><label>نطاق البحث الافتراضي (كم)</label><input type="number" id="setRadius" value="10" min="1" max="100"/></div>
+            <div><label>مدة انتظار قبول الطلب (دقيقة)</label><input type="number" id="setWait" value="5" min="1" max="30"/></div>
+            <div><label>حالة المنصة</label><select id="setPlatformStatus"><option value="active">مفتوحة للعامة</option><option value="maintenance">صيانة</option></select></div>
+            <button class="save-btn" onclick="saveSettings()">💾 حفظ الإعدادات</button>
+            <div id="setMsg" class="set-msg"></div>
+          </div>
+        </div>
+        <div class="panel">
+          <div class="panel-title">🔒 تغيير بيانات المسؤول</div>
+          <div class="settings-form">
+            <div><label>اسم المستخدم الجديد</label><input type="text" id="newAdminUser" placeholder="admin"/></div>
+            <div><label>كلمة المرور الجديدة</label><input type="password" id="newAdminPass" placeholder="6 أحرف على الأقل"/></div>
+            <div><label>تأكيد كلمة المرور</label><input type="password" id="newAdminPass2" placeholder="أعد الكتابة"/></div>
+            <button class="save-btn" onclick="changeAdminCreds()">🔑 تحديث بيانات الدخول</button>
+            <div id="credMsg" class="set-msg"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const SERVICES=[
+  {id:'plumb',icon:'🔧',name:'سباكة'},{id:'elec',icon:'⚡',name:'كهرباء'},
+  {id:'ac',icon:'❄️',name:'تكييف'},{id:'clean',icon:'🧹',name:'تنظيف'},
+  {id:'gas',icon:'🔥',name:'غاز'},{id:'water',icon:'💧',name:'تنكر مياه'},
+  {id:'pest',icon:'🐛',name:'مكافحة حشرات'},{id:'paint',icon:'🎨',name:'دهان'},
+  {id:'garden',icon:'🌿',name:'زراعة'},{id:'lock',icon:'🔑',name:'أقفال'},
+  {id:'appliance',icon:'📺',name:'أجهزة'},{id:'net',icon:'📡',name:'إنترنت'},
+  {id:'move',icon:'🚚',name:'نقل أثاث'},{id:'build',icon:'🏗️',name:'بناء'},
+  {id:'solar',icon:'☀️',name:'طاقة شمسية'},{id:'other',icon:'🛠️',name:'أخرى'},
+];
+const svcMap=Object.fromEntries(SERVICES.map(s=>[s.id,s.icon+' '+s.name]));
+const DEFAULT_ADMIN={user:'admin',pass:'khedmati2025'};
+let allReqs=[],allProvs=[],reqFilter='all',provFilter='all';
+
+function doAdminLogin(){
+  const u=document.getElementById('adminUser').value.trim();
+  const p=document.getElementById('adminPass').value;
+  const saved=JSON.parse(localStorage.getItem('khedmati_admin')||'null')||DEFAULT_ADMIN;
+  if(u===saved.user&&p===saved.pass){
+    localStorage.setItem('khedmati_admin_logged','1');
+    document.getElementById('loginScreen').style.display='none';
+    document.getElementById('mainApp').style.display='block';
+    startListeners();
+  }else{
+    const e=document.getElementById('loginErr');e.textContent='⚠️ اسم المستخدم أو كلمة المرور غير صحيحة';e.style.display='block';
+    setTimeout(()=>e.style.display='none',3000);
+  }
+}
+function doLogout(){localStorage.removeItem('khedmati_admin_logged');document.getElementById('mainApp').style.display='none';document.getElementById('loginScreen').style.display='flex';}
+function checkAdminSession(){if(localStorage.getItem('khedmati_admin_logged')==='1'){document.getElementById('loginScreen').style.display='none';document.getElementById('mainApp').style.display='block';startListeners();}}
+function showPage(id,btn){document.querySelectorAll('.page').forEach(p=>p.classList.remove('on'));document.querySelectorAll('.tab').forEach(t=>t.classList.remove('on'));document.getElementById('page-'+id).classList.add('on');btn.classList.add('on');}
+
+function badgeCls(s){return{جديد:'b-new',مقبول:'b-accepted',جاري:'b-progress',مكتمل:'b-done',ملغي:'b-rejected'}[s]||'b-new';}
+function fmtDate(t){try{return new Date(t?.seconds?t.seconds*1000:t).toDateString();}catch(_){return '';}}
+function fmtTime(t){try{return new Date(t?.seconds?t.seconds*1000:t).toLocaleString('ar-OM',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});}catch(_){return '—';}}
+function el(id,v){const e=document.getElementById(id);if(e)e.textContent=v;}
+
+function renderOverview(){
+  const today=new Date().toDateString();
+  const done=allReqs.filter(r=>r.status==='مكتمل');
+  const now=new Date();
+  const monthDone=done.filter(r=>{try{const d=new Date(r.completedAt?.seconds?r.completedAt.seconds*1000:r.completedAt);return d.getMonth()===now.getMonth()&&d.getFullYear()===now.getFullYear();}catch(_){return false;}});
+  const monthComm=monthDone.reduce((s,r)=>s+(r.amount||0)*.15,0);
+  el('sToday',allReqs.filter(r=>fmtDate(r.createdAt)===today).length);
+  el('sProgress',allReqs.filter(r=>r.status==='جاري'||r.status==='مقبول').length);
+  el('sDone',done.length);
+  el('sProviders',allProvs.filter(p=>p.status==='active').length);
+  el('sCommission',monthComm.toFixed(3)+' ر.ع');
+  // Top services
+  const counts={};allReqs.forEach(r=>{counts[r.serviceType]=(counts[r.serviceType]||0)+1;});
+  const sorted=Object.entries(counts).sort((a,b)=>b[1]-a[1]).slice(0,5);
+  const max=sorted[0]?.[1]||1;
+  const colors=['#0D1B5E','#E05A1A','#0A7A4A','#1B3FAB','#BA7517'];
+  const sc=document.getElementById('topServicesChart');
+  if(sc)sc.innerHTML=sorted.length?sorted.map(([id,cnt],i)=>`
+    <div class="bar-item">
+      <div class="bar-lbl">${svcMap[id]||id}</div>
+      <div class="bar-track"><div class="bar-fill" style="width:${(cnt/max*100).toFixed(0)}%;background:${colors[i%colors.length]};"></div></div>
+      <div class="bar-pct">${cnt}</div>
+    </div>`).join(''):'<div style="color:var(--gray-md);font-size:13px;">لا توجد بيانات بعد</div>';
+  // Latest
+  const lr=document.getElementById('latestRequests');
+  if(lr)lr.innerHTML=allReqs.slice(0,5).length?allReqs.slice(0,5).map(r=>`
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid var(--border);">
+      <div><div style="font-size:13px;font-weight:700;color:var(--navy);">${svcMap[r.serviceType]||r.serviceType||'—'} — ${r.customerName||'—'}</div>
+      <div style="font-size:11px;color:var(--gray-md);margin-top:2px;">${r.locationText||'—'}</div></div>
+      <span class="badge ${badgeCls(r.status)}">${r.status||'—'}</span>
+    </div>`).join(''):'<div style="color:var(--gray-md);font-size:13px;">لا توجد طلبات بعد</div>';
+}
+
+function filterReq(btn,f){reqFilter=f;document.querySelectorAll('#page-requests .fbtn').forEach(b=>b.classList.remove('on'));btn.classList.add('on');renderRequests();}
+function filterProv(btn,f){provFilter=f;document.querySelectorAll('#page-providers .fbtn').forEach(b=>b.classList.remove('on'));btn.classList.add('on');renderProviders();}
+
+function renderRequests(){
+  const search=(document.getElementById('reqSearch')?.value||'').toLowerCase();
+  const rows=allReqs.filter(r=>{
+    if(reqFilter!=='all'&&r.status!==reqFilter)return false;
+    if(search&&!(r.customerName||'').toLowerCase().includes(search)&&!(svcMap[r.serviceType]||'').toLowerCase().includes(search)&&!(r.locationText||'').toLowerCase().includes(search))return false;
+    return true;
+  });
+  const tb=document.getElementById('reqTable');if(!tb)return;
+  if(!rows.length){tb.innerHTML='<tr><td colspan="9" style="text-align:center;padding:30px;color:var(--gray-md);">لا توجد نتائج</td></tr>';return;}
+  tb.innerHTML=rows.map(r=>`<tr>
+    <td style="color:var(--gray-md);font-size:11px;font-weight:700;">#${r.docId.slice(-5).toUpperCase()}</td>
+    <td>${svcMap[r.serviceType]||r.serviceType||'—'}</td>
+    <td><div style="font-weight:700;">${r.customerName||'—'}</div><div style="font-size:11px;color:var(--gray-md);">${r.phone||''}</div></td>
+    <td style="font-size:12px;color:var(--gray-md);">${r.locationText||'—'}</td>
+    <td style="font-size:12px;">${r.providerName||'—'}</td>
+    <td style="font-size:11px;color:var(--gray-md);">${fmtTime(r.createdAt)}</td>
+    <td style="font-weight:700;color:var(--green);">${r.amount?r.amount+' ر.ع':'—'}</td>
+    <td><span class="badge ${badgeCls(r.status)}">${r.status||'—'}</span></td>
+    <td><button class="abtn abtn-view" onclick="alert('الطلب: ${r.customerName||''}\\nالخدمة: ${svcMap[r.serviceType]||r.serviceType}\\nالموقع: ${r.locationText||''}\\nالحالة: ${r.status}\\nالمختص: ${r.providerName||'لم يُقبل'}\\nالمبلغ: ${r.amount||0} ر.ع')">عرض</button></td>
+  </tr>`).join('');
+}
+
+function renderProviders(){
+  const search=(document.getElementById('provSearch')?.value||'').toLowerCase();
+  const pending=allProvs.filter(p=>p.status==='pending');
+  const pe=document.getElementById('pendingProviders');
+  if(pe)pe.innerHTML=!pending.length?'<div style="color:var(--gray-md);font-size:13px;">لا توجد طلبات جديدة</div>':
+    pending.map(p=>`<div class="prov-row">
+      <div><div class="prov-name">${p.name}</div><div class="prov-meta">${(p.services||[]).slice(0,3).map(s=>SERVICES.find(x=>x.id===s)?.icon||s).join(' ')} · ${p.area||'—'}</div></div>
+      <div style="display:flex;gap:6px;">
+        <button class="abtn abtn-yes" onclick="approveProvider('${p.docId}','${p.name}')">✓ قبول</button>
+        <button class="abtn abtn-no" onclick="rejectProvider('${p.docId}','${p.name}')">✗ رفض</button>
+      </div></div>`).join('');
+  const top=allProvs.filter(p=>p.status==='active').sort((a,b)=>(b.jobCount||0)-(a.jobCount||0)).slice(0,5);
+  const te=document.getElementById('topProviders');
+  if(te)te.innerHTML=!top.length?'<div style="color:var(--gray-md);font-size:13px;">لا توجد بيانات</div>':
+    top.map((p,i)=>`<div class="prov-row">
+      <div style="width:26px;height:26px;background:${['#D97706','#9CA3AF','#CD7C2C','#E5E7EB','#E5E7EB'][i]};border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;color:#fff;font-size:12px;flex-shrink:0;">${i+1}</div>
+      <div style="flex:1;padding:0 10px;"><div class="prov-name">${p.name}</div><div class="prov-meta">${p.area||'—'} · ${p.jobCount||0} طلب</div></div>
+      <div style="font-size:13px;color:#D97706;">⭐ ${p.rating||'—'}</div></div>`).join('');
+  const rows=allProvs.filter(p=>{
+    if(provFilter!=='all'&&p.status!==provFilter)return false;
+    if(search&&!(p.name||'').toLowerCase().includes(search)&&!(p.phone||'').includes(search))return false;
+    return true;
+  });
+  const tb=document.getElementById('provTable');if(!tb)return;
+  if(!rows.length){tb.innerHTML='<tr><td colspan="7" style="text-align:center;padding:30px;color:var(--gray-md);">لا توجد نتائج</td></tr>';return;}
+  tb.innerHTML=rows.map(p=>`<tr>
+    <td style="font-weight:700;color:var(--navy);">${p.name}</td>
+    <td style="font-size:12px;">${p.phone||'—'}</td>
+    <td style="font-size:14px;">${(p.services||[]).slice(0,4).map(s=>SERVICES.find(x=>x.id===s)?.icon||s).join(' ')}</td>
+    <td style="font-size:12px;color:var(--gray-md);">${p.area||'—'}</td>
+    <td style="font-weight:700;">${p.jobCount||0}</td>
+    <td><span class="badge ${p.status==='active'?'b-active':p.status==='pending'?'b-pending':'b-rejected'}">${p.status==='active'?'نشط':p.status==='pending'?'قيد المراجعة':'موقوف'}</span></td>
+    <td style="display:flex;gap:5px;flex-wrap:wrap;">
+      ${p.status==='pending'?`<button class="abtn abtn-yes" onclick="approveProvider('${p.docId}','${p.name}')">✓ قبول</button>`:''}
+      ${p.status==='active'?`<button class="abtn abtn-no" onclick="suspendProvider('${p.docId}','${p.name}')">إيقاف</button>`:''}
+      ${p.status==='rejected'?`<button class="abtn abtn-yes" onclick="approveProvider('${p.docId}','${p.name}')">إعادة تفعيل</button>`:''}
+    </td></tr>`).join('');
+  el('sProviders',allProvs.filter(p=>p.status==='active').length);
+}
+
+function renderFinance(){
+  const done=allReqs.filter(r=>r.status==='مكتمل');
+  const total=done.reduce((s,r)=>s+(r.amount||0),0);
+  el('fTotal',total.toFixed(3)+' ر.ع');el('fComm',(total*.15).toFixed(3)+' ر.ع');el('fOwed',(total*.85).toFixed(3)+' ر.ع');
+  const tb=document.getElementById('finTable');if(!tb)return;
+  if(!done.length){tb.innerHTML='<tr><td colspan="7" style="text-align:center;padding:30px;color:var(--gray-md);">لا توجد معاملات بعد</td></tr>';return;}
+  tb.innerHTML=done.map(r=>`<tr>
+    <td>${svcMap[r.serviceType]||r.serviceType||'—'}</td>
+    <td>${r.customerName||'—'}</td>
+    <td>${r.providerName||'—'}</td>
+    <td style="font-size:11px;color:var(--gray-md);">${fmtTime(r.completedAt||r.createdAt)}</td>
+    <td style="font-weight:700;">${r.amount||0} ر.ع</td>
+    <td style="color:var(--danger);">${((r.amount||0)*.15).toFixed(3)} ر.ع</td>
+    <td style="font-weight:700;color:var(--green);">${((r.amount||0)*.85).toFixed(3)} ر.ع</td>
+  </tr>`).join('');
+}
+
+function saveSettings(){
+  localStorage.setItem('khedmati_settings',JSON.stringify({commission:document.getElementById('setComm').value,radius:document.getElementById('setRadius').value,wait:document.getElementById('setWait').value,status:document.getElementById('setPlatformStatus').value}));
+  const msg=document.getElementById('setMsg');msg.style.cssText='display:block;background:var(--success-lt);color:var(--green);border:1px solid #A7F3CB;border-radius:9px;padding:10px;font-size:13px;font-weight:700;';msg.textContent='✅ تم حفظ الإعدادات';setTimeout(()=>msg.style.display='none',3000);
+}
+function changeAdminCreds(){
+  const u=document.getElementById('newAdminUser').value.trim(),p=document.getElementById('newAdminPass').value,p2=document.getElementById('newAdminPass2').value;
+  const msg=document.getElementById('credMsg');
+  if(!u||!p){msg.style.cssText='display:block;background:var(--danger-lt);color:var(--danger);border-radius:9px;padding:10px;font-size:13px;font-weight:700;';msg.textContent='⚠️ أكمل الحقول';return;}
+  if(p!==p2){msg.style.cssText='display:block;background:var(--danger-lt);color:var(--danger);border-radius:9px;padding:10px;font-size:13px;font-weight:700;';msg.textContent='⚠️ كلمة المرور غير متطابقة';return;}
+  if(p.length<6){msg.style.cssText='display:block;background:var(--danger-lt);color:var(--danger);border-radius:9px;padding:10px;font-size:13px;font-weight:700;';msg.textContent='⚠️ 6 أحرف على الأقل';return;}
+  localStorage.setItem('khedmati_admin',JSON.stringify({user:u,pass:p}));
+  msg.style.cssText='display:block;background:var(--success-lt);color:var(--green);border-radius:9px;padding:10px;font-size:13px;font-weight:700;';msg.textContent='✅ تم تحديث بيانات الدخول';setTimeout(()=>msg.style.display='none',3000);
+}
+
+window.approveProvider=async function(id,name){if(!confirm(`قبول تسجيل ${name}؟`))return;const{doc,updateDoc}=await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js');await updateDoc(doc(window._db,'providers',id),{status:'active'});};
+window.rejectProvider=async function(id,name){if(!confirm(`رفض طلب ${name}؟`))return;const{doc,updateDoc}=await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js');await updateDoc(doc(window._db,'providers',id),{status:'rejected'});};
+window.suspendProvider=async function(id,name){if(!confirm(`إيقاف حساب ${name}؟`))return;const{doc,updateDoc}=await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js');await updateDoc(doc(window._db,'providers',id),{status:'rejected'});};
+</script>
+
+<script type="module">
+import{initializeApp}from'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+import{getFirestore,collection,query,orderBy,onSnapshot}from'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+const app=initializeApp({apiKey:"AIzaSyAYHnMCVFL0eDuTJGbYpyqPXykYAhY3RcI",authDomain:"khedmati-cee2f.firebaseapp.com",projectId:"khedmati-cee2f",storageBucket:"khedmati-cee2f.firebasestorage.app",messagingSenderId:"254099792190",appId:"1:254099792190:web:45588d7178bfa4ba5b4c6f"});
+const db=getFirestore(app);window._db=db;
+
+window.startListeners=function(){
+  onSnapshot(query(collection(db,'requests'),orderBy('createdAt','desc')),snap=>{
+    allReqs=snap.docs.map(d=>({docId:d.id,...d.data()}));
+    renderOverview();renderRequests();renderFinance();
+  });
+  onSnapshot(query(collection(db,'providers'),orderBy('createdAt','desc')),snap=>{
+    allProvs=snap.docs.map(d=>({docId:d.id,...d.data()}));
+    renderOverview();renderProviders();
+  });
+};
+setTimeout(checkAdminSession,300);
+</script>
+</body>
+</html>
