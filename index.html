@@ -1,0 +1,363 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>خدمتي — اطلب خدمة منزلية</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin=""/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+<style>
+:root{
+  --navy:#0D1B5E;--blue:#1B3FAB;--blue-lt:#4A7AFF;
+  --orange:#E05A1A;--green:#0A7A4A;
+  --gray-dk:#2C2C2A;--gray-md:#888780;--gray-lt:#F1EFE8;
+  --bg:#F7F6F3;--white:#FFFFFF;--border:#E2E0D8;
+  --shadow:0 4px 24px rgba(13,27,94,.07);
+  --success:#0A7A4A;--success-lt:#E6F5EF;
+  --danger:#DC2626;--danger-lt:#FEF2F2;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:"Cairo",Tahoma,Arial,sans-serif;background:var(--bg);color:var(--gray-dk);min-height:100vh;}
+.nav{background:var(--navy);position:sticky;top:0;z-index:50;box-shadow:0 2px 20px rgba(13,27,94,.3);}
+.nav-inner{max-width:900px;margin:auto;padding:0 20px;height:64px;display:flex;align-items:center;justify-content:space-between;}
+.brand{display:flex;align-items:center;gap:10px;text-decoration:none;}
+.brand-mark{width:40px;height:40px;background:var(--blue);border-radius:10px;display:flex;align-items:center;justify-content:center;box-shadow:0 0 0 2px rgba(74,122,255,.4);}
+.brand-mark svg{width:24px;height:24px;}
+.brand-name{font-size:22px;font-weight:900;color:var(--white);}
+.brand-name span{color:var(--orange);}
+.nav-link{font-size:13px;font-weight:700;color:var(--white);text-decoration:none;background:rgba(255,255,255,.12);padding:9px 16px;border-radius:10px;transition:.18s;border:1px solid rgba(255,255,255,.15);}
+.nav-link:hover{background:var(--orange);}
+.wrap{max-width:900px;margin:0 auto;padding:28px 20px 70px;}
+.hero{background:linear-gradient(135deg,var(--navy),var(--blue));border-radius:24px;padding:40px 32px;color:var(--white);margin-bottom:28px;text-align:center;position:relative;overflow:hidden;}
+.hero::before{content:"";position:absolute;inset:0;background-image:linear-gradient(rgba(74,122,255,.08) 1px,transparent 1px),linear-gradient(90deg,rgba(74,122,255,.08) 1px,transparent 1px);background-size:40px 40px;}
+.hero-c{position:relative;z-index:1;}
+.hero-logo{width:64px;height:64px;background:rgba(255,255,255,.12);border-radius:16px;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;border:1px solid rgba(255,255,255,.2);}
+.hero-logo svg{width:38px;height:38px;}
+.hero h1{font-size:28px;font-weight:900;margin-bottom:10px;}
+.hero p{opacity:.85;font-size:15px;line-height:1.8;}
+.hero-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(224,90,26,.2);border:1px solid rgba(224,90,26,.4);color:#FFB98A;font-size:12px;font-weight:700;padding:5px 14px;border-radius:999px;margin-bottom:14px;}
+.sec-title{font-size:16px;font-weight:700;color:var(--navy);margin-bottom:14px;display:flex;align-items:center;gap:8px;}
+.sec-title::after{content:"";flex:1;height:1px;background:var(--border);}
+.services-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:10px;margin-bottom:28px;}
+.srv-card{background:var(--white);border:2px solid var(--border);border-radius:14px;padding:14px 8px;text-align:center;cursor:pointer;transition:.18s;}
+.srv-card:hover{transform:translateY(-3px);box-shadow:0 8px 20px rgba(13,27,94,.1);border-color:rgba(27,63,171,.3);}
+.srv-card.selected{border-color:var(--orange);background:#FFF5EE;box-shadow:0 0 0 3px rgba(224,90,26,.12);}
+.srv-icon{font-size:28px;margin-bottom:6px;}
+.srv-name{font-size:12px;font-weight:700;}
+.srv-card.selected .srv-name{color:var(--orange);}
+.card{background:var(--white);border:1px solid var(--border);border-radius:20px;padding:24px;box-shadow:var(--shadow);margin-bottom:20px;}
+.card-title{font-size:15px;font-weight:700;color:var(--navy);margin-bottom:18px;padding-bottom:14px;border-bottom:1px solid var(--border);}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+.fg-full{grid-column:1/-1;}
+label{display:block;font-size:13px;font-weight:700;color:var(--gray-dk);margin-bottom:6px;}
+input,select,textarea{border:1.5px solid var(--border);border-radius:11px;padding:11px 14px;font-size:14px;font-family:"Cairo",Tahoma,sans-serif;outline:none;transition:.18s;width:100%;background:var(--white);}
+input:focus,select:focus,textarea:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(27,63,171,.08);}
+input[readonly]{background:var(--bg);cursor:pointer;}
+textarea{min-height:90px;resize:vertical;line-height:1.8;}
+.loc-btn{background:var(--navy);color:var(--white);border:none;border-radius:11px;padding:11px 16px;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap;font-family:"Cairo",sans-serif;transition:.18s;}
+.loc-btn:hover{background:var(--blue);}
+.primary-btn{background:linear-gradient(135deg,var(--orange),#C44B12);color:var(--white);border:none;border-radius:12px;padding:14px;font-size:15px;font-weight:700;cursor:pointer;width:100%;font-family:"Cairo",sans-serif;box-shadow:0 4px 16px rgba(224,90,26,.25);transition:.18s;}
+.primary-btn:hover{transform:translateY(-1px);}
+.primary-btn:disabled{opacity:.6;cursor:not-allowed;transform:none;}
+.result-box{border-radius:12px;padding:14px 18px;font-weight:700;margin-top:14px;}
+.ok{background:var(--success-lt);color:var(--success);border:1px solid #A7F3CB;}
+.err{background:var(--danger-lt);color:var(--danger);border:1px solid #FECACA;}
+.how-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;}
+.how-item{background:var(--bg);border:1px solid var(--border);border-radius:14px;padding:16px;text-align:center;}
+.how-num{width:32px;height:32px;background:var(--navy);color:var(--white);border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;margin:0 auto 10px;}
+.how-title{font-weight:700;font-size:13px;color:var(--navy);margin-bottom:4px;}
+.how-desc{font-size:12px;color:var(--gray-md);line-height:1.6;}
+/* Map Modal */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);display:none;align-items:center;justify-content:center;z-index:9999;}
+.overlay.show{display:flex;}
+.map-box{width:min(94vw,820px);background:var(--white);border-radius:20px;padding:16px;box-shadow:0 20px 60px rgba(0,0,0,.25);}
+.map-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;}
+.close-btn{background:var(--bg);border:none;border-radius:8px;padding:6px 14px;cursor:pointer;font-weight:700;color:var(--gray-md);}
+#cMap{width:100%;height:360px;border-radius:12px;}
+.map-foot{display:flex;gap:8px;align-items:center;margin-top:12px;flex-wrap:wrap;}
+/* Full Screen Modals */
+.full-screen{position:fixed;inset:0;background:rgba(13,27,94,.7);z-index:9998;align-items:center;justify-content:center;padding:20px;display:none;}
+.full-screen.show{display:flex;}
+.fs-box{background:var(--white);border-radius:24px;padding:28px;width:100%;max-width:460px;box-shadow:0 20px 60px rgba(0,0,0,.3);max-height:90vh;overflow-y:auto;}
+.pay-opt{display:flex;align-items:center;gap:12px;padding:12px 16px;border:2px solid var(--border);border-radius:12px;cursor:pointer;transition:.15s;background:var(--white);margin-bottom:8px;}
+.pay-opt:hover{border-color:rgba(13,27,94,.3);}
+.pay-opt.on{border-color:var(--navy);background:#E6EDFF;}
+.pay-opt .pi{font-size:22px;}
+.pay-opt .pn{font-size:14px;font-weight:700;color:var(--navy);}
+.pay-opt .ps{font-size:11px;color:var(--gray-md);}
+.star-btn{font-size:38px;cursor:pointer;opacity:.3;transition:.15s;display:inline-block;}
+.star-btn.on{opacity:1;transform:scale(1.1);}
+.site-footer{background:var(--navy);color:rgba(255,255,255,.35);text-align:center;padding:24px 20px;font-size:12px;margin-top:40px;}
+.site-footer strong{color:rgba(255,255,255,.6);}
+@media(max-width:600px){.form-grid{grid-template-columns:1fr}.services-grid{grid-template-columns:repeat(4,1fr)}.hero{padding:28px 20px;}.hero h1{font-size:22px;}}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-inner">
+    <a class="brand" href="index.html">
+      <div class="brand-mark">
+        <svg viewBox="0 0 66 66" fill="none"><circle cx="24" cy="26" r="13" stroke="white" stroke-width="5" fill="none"/><circle cx="24" cy="26" r="5.5" fill="white"/><rect x="35" y="21" width="21" height="9" rx="3" fill="white"/><rect x="50" y="30" width="6" height="11" rx="2" fill="white"/><path d="M12 50 Q24 43 36 50 Q48 57 56 50" stroke="#4A7AFF" stroke-width="2.5" stroke-linecap="round" fill="none"/></svg>
+      </div>
+      <span class="brand-name">خدم<span>تي</span></span>
+    </a>
+    <a href="provider.html" class="nav-link">👷 أنت مزود خدمة؟ سجّل ←</a>
+  </div>
+</nav>
+
+<div class="wrap">
+  <div class="hero">
+    <div class="hero-c">
+      <div class="hero-badge">⚡ سريع · موثوق · قريب منك</div>
+      <div class="hero-logo">
+        <svg viewBox="0 0 66 66" fill="none"><circle cx="24" cy="26" r="13" stroke="white" stroke-width="5" fill="none"/><circle cx="24" cy="26" r="5.5" fill="white"/><rect x="35" y="21" width="21" height="9" rx="3" fill="white"/><rect x="50" y="30" width="6" height="11" rx="2" fill="white"/><path d="M12 50 Q24 43 36 50 Q48 57 56 50" stroke="#4A7AFF" stroke-width="2.5" stroke-linecap="round" fill="none"/></svg>
+      </div>
+      <h1>اطلب أي خدمة منزلية الآن</h1>
+      <p>مختصون موثوقون قريبون منك يستقبلون طلبك فوراً<br>بدون تسجيل — اختر الخدمة وحدد موقعك وانتهى</p>
+    </div>
+  </div>
+
+  <div class="sec-title">📋 اختر نوع الخدمة</div>
+  <div class="services-grid" id="servicesGrid"></div>
+
+  <div class="card">
+    <div class="card-title">📝 تفاصيل طلبك</div>
+    <div class="form-grid">
+      <div><label>اسمك *</label><input type="text" id="cName" placeholder="محمد أحمد"/></div>
+      <div><label>رقم جوالك *</label><input type="tel" id="cPhone" placeholder="9689xxxxxxx"/></div>
+      <div class="fg-full">
+        <label>موقعك *</label>
+        <div style="display:flex;gap:8px;">
+          <input type="text" id="cLocation" placeholder="اضغط الزر لتحديد موقعك..." readonly onclick="openCMap()" style="flex:1;"/>
+          <button type="button" class="loc-btn" onclick="openCMap()">📍 تحديد الموقع</button>
+        </div>
+        <div id="locErr" style="display:none;color:var(--danger);font-size:12px;margin-top:5px;font-weight:700;">⚠️ يجب تحديد موقعك على الخريطة أولاً</div>
+      </div>
+      <div class="fg-full"><label>وصف المشكلة</label><textarea id="cDesc" placeholder="اشرح المشكلة بالتفصيل..."></textarea></div>
+      <div><label>الوقت المفضل</label>
+        <select id="cTime"><option>في أقرب وقت</option><option>خلال ساعتين</option><option>هذا الصباح</option><option>هذا المساء</option><option>غداً</option></select>
+      </div>
+      <div><label>صورة (اختياري)</label><input type="file" accept="image/*"/></div>
+      <div class="fg-full"><button class="primary-btn" id="sendBtn" onclick="sendRequest()">🚀 إرسال الطلب والبحث عن مختص</button></div>
+    </div>
+    <div id="resultBox" style="display:none;" class="result-box"></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">⚡ كيف يعمل؟</div>
+    <div class="how-grid">
+      <div class="how-item"><div class="how-num">1</div><div class="how-title">حدد موقعك</div><div class="how-desc">على الخريطة بدقة</div></div>
+      <div class="how-item"><div class="how-num">2</div><div class="how-title">أرسل طلبك</div><div class="how-desc">اختر الخدمة واشرح المشكلة</div></div>
+      <div class="how-item"><div class="how-num">3</div><div class="how-title">اتفاق على السعر</div><div class="how-desc">المختص يزورك ويتفق معك</div></div>
+      <div class="how-item"><div class="how-num">4</div><div class="how-title">ادفع وقيّم</div><div class="how-desc">بعد إتمام الخدمة</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- Map -->
+<div class="overlay" id="cMapModal">
+  <div class="map-box">
+    <div class="map-header">
+      <strong>📍 حدد موقعك</strong>
+      <button class="close-btn" onclick="closeCMap()">✕</button>
+    </div>
+    <div id="cMap"></div>
+    <div class="map-foot">
+      <button class="loc-btn" onclick="cUseGPS()">📍 موقعي الحالي</button>
+      <button class="primary-btn" style="width:auto;padding:10px 20px;" onclick="cConfirmLoc()">✓ تأكيد الموقع</button>
+      <span id="cCoords" style="font-size:12px;color:var(--gray-md);"></span>
+    </div>
+  </div>
+</div>
+
+<!-- Payment Screen -->
+<div class="full-screen" id="payScreen">
+  <div class="fs-box">
+    <div style="text-align:center;margin-bottom:22px;">
+      <div style="font-size:44px;margin-bottom:10px;">💰</div>
+      <h2 style="font-size:20px;font-weight:700;color:var(--navy);margin-bottom:6px;">تم الاتفاق على السعر</h2>
+      <p style="font-size:13px;color:var(--gray-md);">الرجاء إتمام الدفع للمتابعة وبدء تنفيذ الخدمة</p>
+    </div>
+    <div style="background:#E6EDFF;border-radius:14px;padding:14px 18px;margin-bottom:18px;display:flex;align-items:center;gap:12px;">
+      <div style="width:44px;height:44px;background:var(--navy);border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;">👷</div>
+      <div>
+        <div style="font-size:14px;font-weight:700;color:var(--navy);" id="payProvName">—</div>
+        <div style="font-size:12px;color:var(--gray-md);" id="payProvPhone">—</div>
+      </div>
+    </div>
+    <div style="background:linear-gradient(135deg,var(--navy),var(--blue));border-radius:16px;padding:20px;text-align:center;margin-bottom:18px;">
+      <div style="font-size:13px;color:rgba(255,255,255,.7);margin-bottom:6px;">إجمالي الخدمة</div>
+      <div style="font-size:46px;font-weight:900;color:#fff;" id="payAmount">0.000</div>
+      <div style="font-size:14px;color:rgba(255,255,255,.7);">ريال عماني</div>
+    </div>
+    <div style="margin-bottom:18px;">
+      <div style="font-size:12px;font-weight:700;color:var(--gray-md);margin-bottom:10px;">اختر طريقة الدفع</div>
+      <div class="pay-opt on" onclick="selPay(this,'cash')"><span class="pi">💵</span><div><div class="pn">نقداً</div><div class="ps">ادفع للمختص مباشرة</div></div></div>
+      <div class="pay-opt" onclick="selPay(this,'thawani')"><span class="pi">💳</span><div><div class="pn">ثواني Pay</div><div class="ps">بطاقة مدى أو ائتمان</div></div></div>
+      <div class="pay-opt" onclick="selPay(this,'bank')"><span class="pi">🏦</span><div><div class="pn">تحويل بنكي</div><div class="ps">تحويل فوري</div></div></div>
+    </div>
+    <button id="confirmPayBtn" onclick="confirmPay()" style="background:linear-gradient(135deg,var(--green),#085E39);color:#fff;border:none;border-radius:12px;padding:14px;font-size:15px;font-weight:700;cursor:pointer;width:100%;font-family:'Cairo',sans-serif;margin-bottom:10px;">✅ تأكيد الدفع</button>
+    <button onclick="document.getElementById('payScreen').classList.remove('show')" style="background:var(--bg);color:var(--gray-md);border:1px solid var(--border);border-radius:12px;padding:12px;font-size:13px;font-weight:700;cursor:pointer;width:100%;font-family:'Cairo',sans-serif;">لاحقاً</button>
+  </div>
+</div>
+
+<!-- Rating Screen -->
+<div class="full-screen" id="ratingScreen">
+  <div class="fs-box">
+    <div style="text-align:center;margin-bottom:22px;">
+      <div style="font-size:48px;margin-bottom:10px;">⭐</div>
+      <h2 style="font-size:20px;font-weight:700;color:var(--navy);margin-bottom:6px;">كيف كانت الخدمة؟</h2>
+      <p style="font-size:13px;color:var(--gray-md);">تقييمك يساعد على تحسين جودة الخدمة</p>
+    </div>
+    <div style="background:#E6EDFF;border-radius:12px;padding:12px 16px;margin-bottom:20px;display:flex;align-items:center;gap:10px;">
+      <div style="width:36px;height:36px;background:var(--navy);border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:18px;">👷</div>
+      <div style="font-size:14px;font-weight:700;color:var(--navy);" id="ratingProvName">—</div>
+    </div>
+    <div style="display:flex;justify-content:center;gap:10px;margin-bottom:14px;" id="starsRow">
+      <span class="star-btn" data-v="1" onclick="selStar(1)">⭐</span>
+      <span class="star-btn" data-v="2" onclick="selStar(2)">⭐</span>
+      <span class="star-btn" data-v="3" onclick="selStar(3)">⭐</span>
+      <span class="star-btn" data-v="4" onclick="selStar(4)">⭐</span>
+      <span class="star-btn" data-v="5" onclick="selStar(5)">⭐</span>
+    </div>
+    <div style="text-align:center;font-size:14px;font-weight:700;color:var(--navy);min-height:22px;margin-bottom:14px;" id="ratingLabel"></div>
+    <textarea id="ratingComment" placeholder="أضف تعليقاً (اختياري)..." style="width:100%;border:1.5px solid var(--border);border-radius:12px;padding:12px 14px;font-size:14px;font-family:'Cairo',sans-serif;outline:none;resize:none;height:80px;margin-bottom:16px;"></textarea>
+    <button id="submitRatingBtn" onclick="submitRating()" style="background:linear-gradient(135deg,var(--navy),var(--blue));color:#fff;border:none;border-radius:12px;padding:14px;font-size:15px;font-weight:700;cursor:pointer;width:100%;font-family:'Cairo',sans-serif;opacity:.5;" disabled>إرسال التقييم</button>
+    <button onclick="document.getElementById('ratingScreen').classList.remove('show')" style="background:transparent;color:var(--gray-md);border:none;padding:12px;font-size:13px;cursor:pointer;width:100%;font-family:'Cairo',sans-serif;margin-top:4px;">تخطي</button>
+  </div>
+</div>
+
+<footer class="site-footer">
+  <strong>خدمتي</strong> · منصة الخدمات المنزلية · khedmati.om · جميع الحقوق محفوظة 2025
+</footer>
+
+<script>
+var SVCS=[
+  {id:"plumb",icon:"🔧",name:"سباكة"},{id:"elec",icon:"⚡",name:"كهرباء"},
+  {id:"ac",icon:"❄️",name:"تكييف"},{id:"clean",icon:"🧹",name:"تنظيف"},
+  {id:"gas",icon:"🔥",name:"غاز"},{id:"water",icon:"💧",name:"تنكر مياه"},
+  {id:"pest",icon:"🐛",name:"مكافحة حشرات"},{id:"paint",icon:"🎨",name:"دهان"},
+  {id:"garden",icon:"🌿",name:"زراعة"},{id:"lock",icon:"🔑",name:"أقفال"},
+  {id:"appliance",icon:"📺",name:"أجهزة منزلية"},{id:"net",icon:"📡",name:"إنترنت وكاميرات"},
+  {id:"move",icon:"🚚",name:"نقل أثاث"},{id:"build",icon:"🏗️",name:"بناء وترميم"},
+  {id:"solar",icon:"☀️",name:"طاقة شمسية"},{id:"other",icon:"🛠️",name:"أخرى"}
+];
+var selSvc=null,cLat=null,cLng=null,cMap=null,cMarker=null;
+var _payRid=null,_ratRid=null,_starVal=0,_payMethod="cash",_listener=null;
+
+// Grid
+var grid=document.getElementById("servicesGrid"),html="";
+SVCS.forEach(function(s){html+='<div class="srv-card" id="s-'+s.id+'" onclick="pickSvc(\''+s.id+'\')">'+'<div class="srv-icon">'+s.icon+'</div><div class="srv-name">'+s.name+'</div></div>';});
+grid.innerHTML=html;
+
+function pickSvc(id){document.querySelectorAll(".srv-card").forEach(function(c){c.classList.remove("selected");});document.getElementById("s-"+id).classList.add("selected");selSvc=id;document.getElementById("resultBox").style.display="none";}
+function showRes(msg,t){var r=document.getElementById("resultBox");r.innerHTML=msg;r.className="result-box "+t;r.style.display="block";}
+
+// Map
+function openCMap(){document.getElementById("cMapModal").classList.add("show");setTimeout(function(){if(!cMap){cMap=L.map("cMap").setView([23.614,58.593],12);L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",{attribution:"© OpenStreetMap"}).addTo(cMap);cMap.on("click",function(e){cMark(e.latlng.lat,e.latlng.lng);});}else cMap.invalidateSize();if(cLat&&cLng)cMark(cLat,cLng);},200);}
+function cMark(la,ln){if(cMarker)cMap.removeLayer(cMarker);cMarker=L.marker([la,ln]).addTo(cMap).bindPopup("موقعك").openPopup();cLat=la;cLng=ln;document.getElementById("cCoords").textContent="📌 "+la.toFixed(5)+", "+ln.toFixed(5);}
+function cUseGPS(){navigator.geolocation&&navigator.geolocation.getCurrentPosition(function(p){cMap.setView([p.coords.latitude,p.coords.longitude],15);cMark(p.coords.latitude,p.coords.longitude);});}
+function cConfirmLoc(){if(!cLat){alert("اضغط على الخريطة");return;}document.getElementById("cLocation").value="📍 موقع محدد ("+cLat.toFixed(4)+", "+cLng.toFixed(4)+")";document.getElementById("locErr").style.display="none";closeCMap();}
+function closeCMap(){document.getElementById("cMapModal").classList.remove("show");}
+
+// Payment
+function showPayScreen(r){_payRid=r.docId;document.getElementById("payAmount").textContent=(r.amount||0).toFixed(3);document.getElementById("payProvName").textContent=r.providerName||"—";document.getElementById("payProvPhone").textContent=r.providerPhone||"—";document.getElementById("payScreen").classList.add("show");}
+function selPay(el,m){document.querySelectorAll(".pay-opt").forEach(function(x){x.classList.remove("on");});el.classList.add("on");_payMethod=m;}
+async function confirmPay(){
+  if(!_payRid)return;
+  var btn=document.getElementById("confirmPayBtn");btn.disabled=true;btn.textContent="⏳ جاري التأكيد...";
+  try{
+    var m=await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js");
+    await m.updateDoc(m.doc(window._db,"requests",_payRid),{status:"جاري",paymentMethod:_payMethod,paidAt:m.serverTimestamp()});
+    document.getElementById("payScreen").classList.remove("show");
+    var pn=document.getElementById("payProvName").textContent;
+    setTimeout(function(){showRatScreen({docId:_payRid,providerName:pn});},800);
+  }catch(e){console.error(e);}
+  finally{btn.disabled=false;btn.textContent="✅ تأكيد الدفع";}
+}
+
+// Rating
+function showRatScreen(r){_ratRid=r.docId;document.getElementById("ratingProvName").textContent=r.providerName||"—";document.getElementById("ratingComment").value="";selStar(0);document.getElementById("ratingScreen").classList.add("show");}
+function selStar(v){
+  _starVal=v;
+  var lbls=["","سيئة 😞","مقبولة 😐","جيدة 🙂","جيدة جداً 😊","ممتازة 🤩"];
+  document.querySelectorAll(".star-btn").forEach(function(s){s.classList.toggle("on",parseInt(s.dataset.v)<=v);});
+  document.getElementById("ratingLabel").textContent=lbls[v]||"";
+  var b=document.getElementById("submitRatingBtn");b.disabled=v===0;b.style.opacity=v>0?"1":"0.5";
+}
+async function submitRating(){
+  if(!_ratRid||!_starVal)return;
+  var btn=document.getElementById("submitRatingBtn");btn.disabled=true;btn.textContent="⏳ جاري...";
+  try{
+    var m=await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js");
+    var rRef=m.doc(window._db,"requests",_ratRid);
+    var rSnap=await m.getDoc(rRef);var rd=rSnap.data()||{};
+    await m.updateDoc(rRef,{rated:true,rating:_starVal,ratingComment:document.getElementById("ratingComment").value.trim(),ratedAt:m.serverTimestamp()});
+    if(rd.acceptedByProvider){
+      var pRef=m.doc(window._db,"providers",rd.acceptedByProvider);
+      var pSnap=await m.getDoc(pRef);var pd=pSnap.data()||{};
+      var nr=pd.jobCount>0?parseFloat(((pd.rating*pd.jobCount+_starVal)/(pd.jobCount+1)).toFixed(2)):_starVal;
+      await m.updateDoc(pRef,{rating:nr,jobCount:(pd.jobCount||0)+1});
+    }
+    document.getElementById("ratingScreen").classList.remove("show");
+    showRes("⭐ شكراً على تقييمك! نراك في الطلب القادم 😊","ok");
+  }catch(e){console.error(e);btn.disabled=false;btn.textContent="إرسال التقييم";}
+}
+
+// Listen for price sent
+function listenMyReq(phone){
+  if(_listener)_listener();
+  import("https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js").then(function(m){
+    _listener=m.onSnapshot(m.query(m.collection(window._db,"requests"),m.where("phone","==",phone)),function(snap){
+      snap.docChanges().forEach(function(ch){
+        var r={docId:ch.doc.id};Object.assign(r,ch.doc.data());
+        if(ch.type==="modified"){
+          if(r.status==="سعر مرسل")showPayScreen(r);
+          if(r.status==="مكتمل"&&!r.rated)showRatScreen(r);
+        }
+      });
+    });
+  });
+}
+
+// Send Request
+async function sendRequest(){
+  if(!selSvc){showRes("⚠️ اختر نوع الخدمة أولاً","err");document.getElementById("servicesGrid").scrollIntoView({behavior:"smooth",block:"center"});return;}
+  if(!cLat||!cLng){document.getElementById("locErr").style.display="block";showRes("⚠️ حدد موقعك على الخريطة أولاً","err");return;}
+  var name=document.getElementById("cName").value.trim();
+  var phone=document.getElementById("cPhone").value.trim();
+  if(!name||!phone){showRes("⚠️ أكمل الاسم ورقم الجوال","err");return;}
+  if(!window._db){showRes("⚠️ جاري التحميل، حاول بعد ثانية","err");return;}
+  var btn=document.getElementById("sendBtn");btn.disabled=true;btn.textContent="⏳ جاري الإرسال...";
+  try{
+    var m=await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js");
+    await m.addDoc(m.collection(window._db,"requests"),{
+      customerName:name,phone:phone,
+      locationText:document.getElementById("cLocation").value,
+      locationLat:cLat,locationLng:cLng,
+      serviceType:selSvc,
+      description:document.getElementById("cDesc").value.trim(),
+      preferredTime:document.getElementById("cTime").value,
+      status:"جديد",createdAt:m.serverTimestamp(),acceptedBy:null,amount:0
+    });
+    showRes("✅ تم إرسال طلبك! يتم إشعار المختصين القريبين منك...<br><small style='font-weight:400;'>احتفظ بجوالك — سيتصل بك المختص قريباً</small>","ok");
+    listenMyReq(phone);
+    document.getElementById("cName").value="";document.getElementById("cPhone").value="";
+    document.getElementById("cLocation").value="";document.getElementById("cDesc").value="";
+    document.querySelectorAll(".srv-card").forEach(function(c){c.classList.remove("selected");});
+    selSvc=null;cLat=null;cLng=null;if(cMarker&&cMap){cMap.removeLayer(cMarker);cMarker=null;}
+  }catch(e){showRes("⚠️ حدث خطأ في الإرسال","err");console.error(e);}
+  finally{btn.disabled=false;btn.textContent="🚀 إرسال الطلب والبحث عن مختص";}
+}
+</script>
+
+<script type="module">
+import{initializeApp}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import{getFirestore}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+const app=initializeApp({apiKey:"AIzaSyAYHnMCVFL0eDuTJGbYpyqPXykYAhY3RcI",authDomain:"khedmati-cee2f.firebaseapp.com",projectId:"khedmati-cee2f",storageBucket:"khedmati-cee2f.firebasestorage.app",messagingSenderId:"254099792190",appId:"1:254099792190:web:45588d7178bfa4ba5b4c6f"});
+window._db=getFirestore(app);
+</script>
+</body>
+</html>
